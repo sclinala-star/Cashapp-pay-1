@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lightning Pay</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+
+<body style="text-align:center; font-family:sans-serif; background:#0f172a; color:white;">
+
+<h2>⚡ Custom Payment System</h2>
+
+<!-- INPUTS -->
+<input id="name" placeholder="Enter Name (Required)" style="padding:10px; margin:5px;"><br>
+<input id="amount" type="number" placeholder="Enter Amount (sats)" style="padding:10px; margin:5px;"><br>
+
+<button onclick="startPayment()" style="padding:10px 20px; margin:10px;">
+  Generate QR
+</button>
+
+<br><br>
+
+<!-- QR -->
+<canvas id="qr"></canvas>
+
+<p id="invoice" style="word-break:break-all; font-size:12px;"></p>
+
+<button onclick="copyInvoice()" style="padding:10px; margin:10px;">📋 Copy Invoice</button>
+
+<p id="status"></p>
+
+<hr style="margin:30px;">
+
+<!-- CASH APP -->
+<h3>💵 Or Pay with Cash App</h3>
+
+<a href="https://cash.app/$YOURUSERNAME">
+  <button style="padding:12px 20px; background:green; color:white; border:none;">
+    Open Cash App
+  </button>
+</a>
+
+<script>
+
+let paymentHash = "";
+
+// CREATE INVOICE
+async function startPayment() {
+  let name = document.getElementById("name").value.trim();
+  let amount = document.getElementById("amount").value;
+
+  // NAME REQUIRED
+  if (!name) {
+    alert("Name is required!");
+    return;
+  }
+
+  if (!amount || amount <= 0) {
+    alert("Enter valid amount");
+    return;
+  }
+
+  document.getElementById("status").innerText = "Generating invoice...";
+
+  let res = await fetch("https://pleasedpear1.lnbits.com/api/v1/payments", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Api-Key": "46952318a52d48e5942a8ddb25327573"
+    },
+    body: JSON.stringify({
+      out: false,
+      amount: parseInt(amount),
+      memo: "Payment from " + name
+    })
+  });
+
+  let data = await res.json();
+
+  let invoice = data.payment_request;
+  paymentHash = data.payment_hash;
+
+  document.getElementById("invoice").innerText = invoice;
+
+  QRCode.toCanvas(document.getElementById("qr"), invoice);
+
+  document.getElementById("status").innerText = "Waiting for payment...";
+
+  checkPayment();
+}
+
+// CHECK PAYMENT
+async function checkPayment() {
+  let interval = setInterval(async () => {
+
+    let res = await fetch(
+      `https://pleasedpear1.lnbits.com/api/v1/payments/${paymentHash}`,
+      {
+        headers: {
+          "X-Api-Key": "https://pleasedpear1.lnbits.com"
+        }
+      }
+    );
+
+    let data = await res.json();
+
+    if (data.paid) {
+      document.getElementById("status").innerText = "✅ Payment Received!";
+      clearInterval(interval);
+    }
+
+  }, 3000);
+}
+
+// COPY INVOICE
+function copyInvoice() {
+  let text = document.getElementById("invoice").innerText;
+  navigator.clipboard.writeText(text);
+  alert("Copied!");
+}
+
+</script>
+
+</body>
+</html>
