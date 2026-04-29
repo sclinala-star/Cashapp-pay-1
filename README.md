@@ -2,6 +2,10 @@
 
 A classified ads website with a location directory showing countries, states, and cities. Includes an admin dashboard for dynamic management.
 
+## Live Site
+
+**https://classified-website-mympkbeo.fly.dev/**
+
 ## Features
 
 - **Main Page**: Browse locations organized by Country > State > City (pink/magenta themed)
@@ -9,20 +13,20 @@ A classified ads website with a location directory showing countries, states, an
 - **REST API**: Full CRUD endpoints for all location entities
 - **SQLite Database**: Lightweight, file-based storage with seed data
 
-## Setup
+## Setup (Local Development)
 
 ```bash
 pip install -r requirements.txt
-python app.py
+uvicorn app:app --reload --port 8000
 ```
 
-The app runs at `http://localhost:5000`
+The app runs at `http://localhost:8000`
 
 ## Admin Login
 
 - **Username**: `admin`
 - **Password**: `admin123`
-- **URL**: `http://localhost:5000/admin`
+- **URL**: `/admin`
 
 ## API Endpoints
 

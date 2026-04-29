@@ -1,27 +1,55 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
-from functools import wraps
+from fastapi import FastAPI, Request, Form, Depends, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from itsdangerous import URLSafeSerializer
+from typing import Optional
+import os
+
 from database import get_db, init_db, seed_data
 
-app = Flask(__name__)
-app.secret_key = "change-this-in-production-classified-secret-key"
+app = FastAPI()
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+SECRET_KEY = "change-this-in-production-classified-secret-key"
+serializer = URLSafeSerializer(SECRET_KEY)
 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin123"
 
+SESSION_COOKIE = "session_token"
 
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not session.get("logged_in"):
-            return redirect(url_for("admin_login"))
-        return f(*args, **kwargs)
-    return decorated
+
+def is_logged_in(request: Request) -> bool:
+    token = request.cookies.get(SESSION_COOKIE)
+    if not token:
+        return False
+    try:
+        data = serializer.loads(token)
+        return data.get("logged_in") is True
+    except Exception:
+        return False
+
+
+def require_login(request: Request):
+    if not is_logged_in(request):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+
+@app.on_event("startup")
+def startup():
+    init_db()
+    seed_data()
 
 
 # ─── Main Page ───────────────────────────────────────────────────────
 
-@app.route("/")
-def index():
+@app.get("/", response_class=HTMLResponse)
+def index(request: Request):
     db = get_db()
     countries = db.execute(
         "SELECT * FROM countries ORDER BY sort_order, name"
@@ -53,40 +81,62 @@ def index():
         })
 
     db.close()
-    return render_template("index.html", locations=location_data)
+    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data})
 
 
 # ─── Admin Auth ──────────────────────────────────────────────────────
 
-@app.route("/admin/login", methods=["GET", "POST"])
-def admin_login():
-    if request.method == "POST":
-        username = request.form.get("username", "")
-        password = request.form.get("password", "")
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session["logged_in"] = True
-            return redirect(url_for("admin_dashboard"))
-        return render_template("login.html", error="Invalid credentials")
-    return render_template("login.html")
+@app.get("/admin/login", response_class=HTMLResponse)
+def admin_login_page(request: Request):
+    return templates.TemplateResponse(request=request, name="login.html", context={"error": None})
 
 
-@app.route("/admin/logout")
+@app.post("/admin/login")
+def admin_login(request: Request, username: str = Form(...), password: str = Form(...)):
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        token = serializer.dumps({"logged_in": True})
+        response = RedirectResponse(url="/admin", status_code=303)
+        response.set_cookie(SESSION_COOKIE, token, httponly=True, max_age=86400)
+        return response
+    return templates.TemplateResponse(request=request, name="login.html", context={"error": "Invalid credentials"})
+
+
+@app.get("/admin/logout")
 def admin_logout():
-    session.pop("logged_in", None)
-    return redirect(url_for("admin_login"))
+    response = RedirectResponse(url="/admin/login", status_code=303)
+    response.delete_cookie(SESSION_COOKIE)
+    return response
 
 
 # ─── Admin Dashboard ─────────────────────────────────────────────────
 
-@app.route("/admin")
-@login_required
-def admin_dashboard():
-    return render_template("admin.html")
+@app.get("/admin", response_class=HTMLResponse)
+def admin_dashboard(request: Request):
+    if not is_logged_in(request):
+        return RedirectResponse(url="/admin/login", status_code=303)
+    return templates.TemplateResponse(request=request, name="admin.html")
+
+
+# ─── Pydantic Models ─────────────────────────────────────────────────
+
+class CountryCreate(BaseModel):
+    name: str
+
+class StateCreate(BaseModel):
+    name: str
+    country_id: int
+
+class CityCreate(BaseModel):
+    name: str
+    state_id: int
+
+class NameUpdate(BaseModel):
+    name: str
 
 
 # ─── API: Countries ──────────────────────────────────────────────────
 
-@app.route("/api/countries", methods=["GET"])
+@app.get("/api/countries")
 def api_get_countries():
     db = get_db()
     countries = db.execute(
@@ -94,16 +144,15 @@ def api_get_countries():
     ).fetchall()
     result = [{"id": c["id"], "name": c["name"]} for c in countries]
     db.close()
-    return jsonify(result)
+    return result
 
 
-@app.route("/api/countries", methods=["POST"])
-@login_required
-def api_add_country():
-    data = request.get_json()
-    name = data.get("name", "").strip()
+@app.post("/api/countries", status_code=201)
+def api_add_country(request: Request, data: CountryCreate):
+    require_login(request)
+    name = data.name.strip()
     if not name:
-        return jsonify({"error": "Country name is required"}), 400
+        return JSONResponse({"error": "Country name is required"}, status_code=400)
 
     db = get_db()
     try:
@@ -116,41 +165,40 @@ def api_add_country():
         db.commit()
         country_id = cursor.lastrowid
         db.close()
-        return jsonify({"id": country_id, "name": name}), 201
+        return {"id": country_id, "name": name}
     except Exception as e:
         db.close()
-        return jsonify({"error": str(e)}), 400
+        return JSONResponse({"error": str(e)}, status_code=400)
 
 
-@app.route("/api/countries/<int:country_id>", methods=["PUT"])
-@login_required
-def api_update_country(country_id):
-    data = request.get_json()
-    name = data.get("name", "").strip()
+@app.put("/api/countries/{country_id}")
+def api_update_country(request: Request, country_id: int, data: NameUpdate):
+    require_login(request)
+    name = data.name.strip()
     if not name:
-        return jsonify({"error": "Country name is required"}), 400
+        return JSONResponse({"error": "Country name is required"}, status_code=400)
 
     db = get_db()
     db.execute("UPDATE countries SET name = ? WHERE id = ?", (name, country_id))
     db.commit()
     db.close()
-    return jsonify({"id": country_id, "name": name})
+    return {"id": country_id, "name": name}
 
 
-@app.route("/api/countries/<int:country_id>", methods=["DELETE"])
-@login_required
-def api_delete_country(country_id):
+@app.delete("/api/countries/{country_id}")
+def api_delete_country(request: Request, country_id: int):
+    require_login(request)
     db = get_db()
     db.execute("DELETE FROM countries WHERE id = ?", (country_id,))
     db.commit()
     db.close()
-    return jsonify({"success": True})
+    return {"success": True}
 
 
 # ─── API: States ─────────────────────────────────────────────────────
 
-@app.route("/api/states/<int:country_id>", methods=["GET"])
-def api_get_states(country_id):
+@app.get("/api/states/{country_id}")
+def api_get_states(country_id: int):
     db = get_db()
     states = db.execute(
         "SELECT * FROM states WHERE country_id = ? ORDER BY sort_order, name",
@@ -158,66 +206,63 @@ def api_get_states(country_id):
     ).fetchall()
     result = [{"id": s["id"], "name": s["name"], "country_id": s["country_id"]} for s in states]
     db.close()
-    return jsonify(result)
+    return result
 
 
-@app.route("/api/states", methods=["POST"])
-@login_required
-def api_add_state():
-    data = request.get_json()
-    name = data.get("name", "").strip()
-    country_id = data.get("country_id")
-    if not name or not country_id:
-        return jsonify({"error": "State name and country_id are required"}), 400
+@app.post("/api/states", status_code=201)
+def api_add_state(request: Request, data: StateCreate):
+    require_login(request)
+    name = data.name.strip()
+    if not name or not data.country_id:
+        return JSONResponse({"error": "State name and country_id are required"}, status_code=400)
 
     db = get_db()
     try:
         max_order = db.execute(
-            "SELECT MAX(sort_order) FROM states WHERE country_id = ?", (country_id,)
+            "SELECT MAX(sort_order) FROM states WHERE country_id = ?", (data.country_id,)
         ).fetchone()[0]
         sort_order = (max_order or 0) + 1
         cursor = db.execute(
             "INSERT INTO states (name, country_id, sort_order) VALUES (?, ?, ?)",
-            (name, country_id, sort_order),
+            (name, data.country_id, sort_order),
         )
         db.commit()
         state_id = cursor.lastrowid
         db.close()
-        return jsonify({"id": state_id, "name": name, "country_id": country_id}), 201
+        return {"id": state_id, "name": name, "country_id": data.country_id}
     except Exception as e:
         db.close()
-        return jsonify({"error": str(e)}), 400
+        return JSONResponse({"error": str(e)}, status_code=400)
 
 
-@app.route("/api/states/<int:state_id>", methods=["PUT"])
-@login_required
-def api_update_state(state_id):
-    data = request.get_json()
-    name = data.get("name", "").strip()
+@app.put("/api/states/{state_id}")
+def api_update_state(request: Request, state_id: int, data: NameUpdate):
+    require_login(request)
+    name = data.name.strip()
     if not name:
-        return jsonify({"error": "State name is required"}), 400
+        return JSONResponse({"error": "State name is required"}, status_code=400)
 
     db = get_db()
     db.execute("UPDATE states SET name = ? WHERE id = ?", (name, state_id))
     db.commit()
     db.close()
-    return jsonify({"id": state_id, "name": name})
+    return {"id": state_id, "name": name}
 
 
-@app.route("/api/states/<int:state_id>", methods=["DELETE"])
-@login_required
-def api_delete_state(state_id):
+@app.delete("/api/states/{state_id}")
+def api_delete_state(request: Request, state_id: int):
+    require_login(request)
     db = get_db()
     db.execute("DELETE FROM states WHERE id = ?", (state_id,))
     db.commit()
     db.close()
-    return jsonify({"success": True})
+    return {"success": True}
 
 
 # ─── API: Cities ─────────────────────────────────────────────────────
 
-@app.route("/api/cities/<int:state_id>", methods=["GET"])
-def api_get_cities(state_id):
+@app.get("/api/cities/{state_id}")
+def api_get_cities(state_id: int):
     db = get_db()
     cities = db.execute(
         "SELECT * FROM cities WHERE state_id = ? ORDER BY sort_order, name",
@@ -225,65 +270,62 @@ def api_get_cities(state_id):
     ).fetchall()
     result = [{"id": c["id"], "name": c["name"], "state_id": c["state_id"]} for c in cities]
     db.close()
-    return jsonify(result)
+    return result
 
 
-@app.route("/api/cities", methods=["POST"])
-@login_required
-def api_add_city():
-    data = request.get_json()
-    name = data.get("name", "").strip()
-    state_id = data.get("state_id")
-    if not name or not state_id:
-        return jsonify({"error": "City name and state_id are required"}), 400
+@app.post("/api/cities", status_code=201)
+def api_add_city(request: Request, data: CityCreate):
+    require_login(request)
+    name = data.name.strip()
+    if not name or not data.state_id:
+        return JSONResponse({"error": "City name and state_id are required"}, status_code=400)
 
     db = get_db()
     try:
         max_order = db.execute(
-            "SELECT MAX(sort_order) FROM cities WHERE state_id = ?", (state_id,)
+            "SELECT MAX(sort_order) FROM cities WHERE state_id = ?", (data.state_id,)
         ).fetchone()[0]
         sort_order = (max_order or 0) + 1
         cursor = db.execute(
             "INSERT INTO cities (name, state_id, sort_order) VALUES (?, ?, ?)",
-            (name, state_id, sort_order),
+            (name, data.state_id, sort_order),
         )
         db.commit()
         city_id = cursor.lastrowid
         db.close()
-        return jsonify({"id": city_id, "name": name, "state_id": state_id}), 201
+        return {"id": city_id, "name": name, "state_id": data.state_id}
     except Exception as e:
         db.close()
-        return jsonify({"error": str(e)}), 400
+        return JSONResponse({"error": str(e)}, status_code=400)
 
 
-@app.route("/api/cities/<int:city_id>", methods=["PUT"])
-@login_required
-def api_update_city(city_id):
-    data = request.get_json()
-    name = data.get("name", "").strip()
+@app.put("/api/cities/{city_id}")
+def api_update_city(request: Request, city_id: int, data: NameUpdate):
+    require_login(request)
+    name = data.name.strip()
     if not name:
-        return jsonify({"error": "City name is required"}), 400
+        return JSONResponse({"error": "City name is required"}, status_code=400)
 
     db = get_db()
     db.execute("UPDATE cities SET name = ? WHERE id = ?", (name, city_id))
     db.commit()
     db.close()
-    return jsonify({"id": city_id, "name": name})
+    return {"id": city_id, "name": name}
 
 
-@app.route("/api/cities/<int:city_id>", methods=["DELETE"])
-@login_required
-def api_delete_city(city_id):
+@app.delete("/api/cities/{city_id}")
+def api_delete_city(request: Request, city_id: int):
+    require_login(request)
     db = get_db()
     db.execute("DELETE FROM cities WHERE id = ?", (city_id,))
     db.commit()
     db.close()
-    return jsonify({"success": True})
+    return {"success": True}
 
 
-# ─── API: Full location tree (for admin) ────────────────────────────
+# ─── API: Full location tree ────────────────────────────────────────
 
-@app.route("/api/locations", methods=["GET"])
+@app.get("/api/locations")
 def api_get_all_locations():
     db = get_db()
     countries = db.execute(
@@ -316,10 +358,4 @@ def api_get_all_locations():
         })
 
     db.close()
-    return jsonify(result)
-
-
-if __name__ == "__main__":
-    init_db()
-    seed_data()
-    app.run(debug=True, port=5000)
+    return result
