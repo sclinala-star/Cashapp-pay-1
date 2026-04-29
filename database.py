@@ -77,30 +77,6 @@ def seed_data():
             "Ontario": ["Toronto", "Ottawa", "Hamilton", "London"],
             "Quebec": ["Montreal", "Quebec City", "Laval"],
         },
-        "Indonesia": {
-            "Java": ["Batam", "Jakarta", "Makassar", "Medan", "Surabaya"],
-        },
-        "Japan": {
-            "Kanto": ["Fukuoka", "Hiroshima", "Nagoya", "Okinawa", "Osaka-Kobe-Kyoto", "Sapporo", "Sendai", "Tokyo"],
-        },
-        "Jordan": {
-            "Amman": ["Amman"],
-        },
-        "Austria": {
-            "Austria": ["Innsbruck", "Linz", "Salzburg", "Wien"],
-        },
-        "Belarus": {
-            "Belarus": ["Minsk"],
-        },
-        "Belgium": {
-            "Belgium": ["Antwerp", "Brussel", "Charleroi", "Ghent", "Liege"],
-        },
-        "Bosnia and Herzegovina": {
-            "Bosnia": ["Sarajevo"],
-        },
-        "Spain": {
-            "Spain": ["Bilbao", "Cadiz", "Canarias", "Coruna", "Granada", "Ibiza", "Madrid", "Malaga", "Mallorca", "Murcia", "Oviedo", "Salamanca", "San Sebastian", "Sevilla", "Valencia", "Valladolid", "Zaragoza"],
-        },
     }
 
     sort_order = 0
