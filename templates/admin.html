@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <h1 class="site-title">Classified - Admin</h1>
+            <nav class="header-nav">
+                <a href="/">View Site</a>
+                <a href="/admin/logout">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <!-- Add Country / State / City Panel -->
+        <section class="admin-panel">
+            <h2>Manage Locations</h2>
+
+            <!-- Add Country -->
+            <div class="admin-card">
+                <h3>Add Country</h3>
+                <div class="inline-form">
+                    <input type="text" id="new-country-name" placeholder="Country name">
+                    <button class="btn btn-primary" onclick="addCountry()">Add Country</button>
+                </div>
+            </div>
+
+            <!-- Add State -->
+            <div class="admin-card">
+                <h3>Add State</h3>
+                <div class="inline-form">
+                    <select id="state-country-select">
+                        <option value="">Select Country</option>
+                    </select>
+                    <input type="text" id="new-state-name" placeholder="State name">
+                    <button class="btn btn-primary" onclick="addState()">Add State</button>
+                </div>
+            </div>
+
+            <!-- Add City -->
+            <div class="admin-card">
+                <h3>Add City</h3>
+                <div class="inline-form">
+                    <select id="city-country-select" onchange="loadStatesForCity()">
+                        <option value="">Select Country</option>
+                    </select>
+                    <select id="city-state-select">
+                        <option value="">Select State</option>
+                    </select>
+                    <input type="text" id="new-city-name" placeholder="City name">
+                    <button class="btn btn-primary" onclick="addCity()">Add City</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Location Tree -->
+        <section class="admin-panel">
+            <h2>Current Locations</h2>
+            <div id="location-tree" class="location-tree"></div>
+        </section>
+
+        <!-- Toast notification -->
+        <div id="toast" class="toast hidden"></div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Edit</h3>
+            <input type="text" id="modal-input" placeholder="New name">
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="modal-save">Save</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>
