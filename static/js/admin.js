@@ -4,10 +4,34 @@ document.addEventListener("DOMContentLoaded", () => {
     loadLocations();
 });
 
+// ─── Sidebar Navigation ─────────────────────────────────────────
+
+function showPage(page, el) {
+    document.querySelectorAll(".admin-page").forEach((p) => p.classList.remove("active"));
+    document.getElementById("page-" + page).classList.add("active");
+    document.querySelectorAll(".sidebar-dropdown-menu .sidebar-link").forEach((l) => l.classList.remove("active"));
+    if (el) el.classList.add("active");
+    if (window.innerWidth < 900) document.querySelector(".sidebar").classList.remove("open");
+}
+
+function toggleDropdown(el) {
+    const menu = el.nextElementSibling;
+    menu.classList.toggle("open");
+    el.querySelector(".sidebar-chevron").classList.toggle("rotated");
+}
+
+function toggleSidebar() {
+    document.querySelector(".sidebar").classList.toggle("open");
+}
+
+// ─── Data Loading ───────────────────────────────────────────────
+
 async function loadLocations() {
     const res = await fetch("/api/locations");
     locationData = await res.json();
-    renderTree();
+    renderCountriesList();
+    renderStatesList();
+    renderCitiesList();
     populateCountrySelects();
 }
 
@@ -47,73 +71,93 @@ function loadStatesForCity() {
     });
 }
 
-function renderTree() {
-    const container = document.getElementById("location-tree");
-    container.innerHTML = "";
+// ─── Render Tables ──────────────────────────────────────────────
 
+function renderCountriesList() {
+    const container = document.getElementById("countries-list");
     if (locationData.length === 0) {
-        container.innerHTML = '<p style="color:#999; text-align:center;">No locations added yet.</p>';
+        container.innerHTML = '<p class="empty-msg">No countries added yet.</p>';
         return;
     }
 
-    locationData.forEach((country) => {
-        const countryDiv = document.createElement("div");
-        countryDiv.className = "tree-country";
+    let html = '<table class="data-table"><thead><tr><th>#</th><th>Country Name</th><th>States</th><th>Actions</th></tr></thead><tbody>';
+    locationData.forEach((c, i) => {
+        html += `<tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${c.states.length}</td>
+            <td class="table-actions">
+                <button class="btn btn-edit btn-sm" onclick="editCountry(${c.id}, '${escapeAttr(c.name)}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCountry(${c.id}, '${escapeAttr(c.name)}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
 
-        countryDiv.innerHTML = `
-            <div class="tree-country-header">
-                <span class="tree-country-name">${escapeHtml(country.name)}</span>
-                <div class="tree-actions">
-                    <button class="btn btn-edit btn-sm" onclick="editCountry(${country.id}, '${escapeAttr(country.name)}')">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteCountry(${country.id}, '${escapeAttr(country.name)}')">Delete</button>
-                </div>
-            </div>
-            <div class="tree-country-body" id="country-body-${country.id}"></div>
-        `;
+function renderStatesList() {
+    const container = document.getElementById("states-list");
+    let allStates = [];
+    locationData.forEach((c) => {
+        c.states.forEach((s) => {
+            allStates.push({ ...s, countryName: c.name, countryId: c.id });
+        });
+    });
 
-        container.appendChild(countryDiv);
+    if (allStates.length === 0) {
+        container.innerHTML = '<p class="empty-msg">No states added yet.</p>';
+        return;
+    }
 
-        const body = countryDiv.querySelector(`#country-body-${country.id}`);
+    let html = '<table class="data-table"><thead><tr><th>#</th><th>State Name</th><th>Country</th><th>Cities</th><th>Actions</th></tr></thead><tbody>';
+    allStates.forEach((s, i) => {
+        html += `<tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(s.name)}</td>
+            <td>${escapeHtml(s.countryName)}</td>
+            <td>${s.cities.length}</td>
+            <td class="table-actions">
+                <button class="btn btn-edit btn-sm" onclick="editState(${s.id}, '${escapeAttr(s.name)}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteState(${s.id}, '${escapeAttr(s.name)}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
 
-        if (country.states.length === 0) {
-            body.innerHTML = '<p style="color:#ccc; font-size:0.85rem;">No states yet</p>';
-        }
-
-        country.states.forEach((state) => {
-            const stateDiv = document.createElement("div");
-            stateDiv.className = "tree-state";
-
-            stateDiv.innerHTML = `
-                <div class="tree-state-header">
-                    <span class="tree-state-name">${escapeHtml(state.name)}</span>
-                    <div class="tree-actions">
-                        <button class="btn btn-edit btn-sm" onclick="editState(${state.id}, '${escapeAttr(state.name)}')">Edit</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteState(${state.id}, '${escapeAttr(state.name)}')">Delete</button>
-                    </div>
-                </div>
-                <div class="tree-state-body" id="state-body-${state.id}"></div>
-            `;
-
-            body.appendChild(stateDiv);
-
-            const stateBody = stateDiv.querySelector(`#state-body-${state.id}`);
-
-            if (state.cities.length === 0) {
-                stateBody.innerHTML = '<span style="color:#ccc; font-size:0.85rem;">No cities yet</span>';
-            }
-
-            state.cities.forEach((city) => {
-                const citySpan = document.createElement("span");
-                citySpan.className = "tree-city";
-                citySpan.innerHTML = `
-                    <span class="city-name">${escapeHtml(city.name)}</span>
-                    <button class="btn btn-edit btn-sm" onclick="editCity(${city.id}, '${escapeAttr(city.name)}')">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteCity(${city.id}, '${escapeAttr(city.name)}')">X</button>
-                `;
-                stateBody.appendChild(citySpan);
+function renderCitiesList() {
+    const container = document.getElementById("cities-list");
+    let allCities = [];
+    locationData.forEach((c) => {
+        c.states.forEach((s) => {
+            s.cities.forEach((city) => {
+                allCities.push({ ...city, stateName: s.name, countryName: c.name });
             });
         });
     });
+
+    if (allCities.length === 0) {
+        container.innerHTML = '<p class="empty-msg">No cities added yet.</p>';
+        return;
+    }
+
+    let html = '<table class="data-table"><thead><tr><th>#</th><th>City Name</th><th>State</th><th>Country</th><th>Actions</th></tr></thead><tbody>';
+    allCities.forEach((city, i) => {
+        html += `<tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(city.name)}</td>
+            <td>${escapeHtml(city.stateName)}</td>
+            <td>${escapeHtml(city.countryName)}</td>
+            <td class="table-actions">
+                <button class="btn btn-edit btn-sm" onclick="editCity(${city.id}, '${escapeAttr(city.name)}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCity(${city.id}, '${escapeAttr(city.name)}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 // ─── Add Operations ─────────────────────────────────────────────

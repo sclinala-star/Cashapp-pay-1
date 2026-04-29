@@ -6,34 +6,73 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
-    <header class="main-header">
-        <div class="header-content">
-            <h1 class="site-title">Classified - Admin</h1>
-            <nav class="header-nav">
-                <a href="/">View Site</a>
-                <a href="/admin/logout">Logout</a>
-            </nav>
+<body class="admin-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="sidebar-logo">&#9881;</span>
+            <span class="sidebar-title">Admin Panel</span>
         </div>
-    </header>
 
-    <main class="admin-container">
-        <!-- Add Country / State / City Panel -->
-        <section class="admin-panel">
-            <h2>Manage Locations</h2>
+        <div class="sidebar-section-label">&#8212; COUNTRIES &amp; CITIES</div>
 
-            <!-- Add Country -->
+        <div class="sidebar-dropdown">
+            <div class="sidebar-dropdown-toggle" onclick="toggleDropdown(this)">
+                <span class="sidebar-icon">&#127760;</span>
+                <span>Countries</span>
+                <span class="sidebar-chevron">&#9662;</span>
+            </div>
+            <div class="sidebar-dropdown-menu open">
+                <a href="#" class="sidebar-link active" data-page="countries" onclick="showPage('countries', this)">
+                    <span class="sidebar-dot"></span> Countries
+                </a>
+                <a href="#" class="sidebar-link" data-page="states" onclick="showPage('states', this)">
+                    <span class="sidebar-dot"></span> States
+                </a>
+                <a href="#" class="sidebar-link" data-page="cities" onclick="showPage('cities', this)">
+                    <span class="sidebar-dot filled"></span> Cities
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-link"><span class="sidebar-icon">&#127968;</span> View Site</a>
+            <a href="/admin/logout" class="sidebar-link"><span class="sidebar-icon">&#128682;</span> Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <h1 class="admin-topbar-title">Classified - Admin</h1>
+        </header>
+
+        <!-- Countries Page -->
+        <div id="page-countries" class="admin-page active">
+            <div class="admin-page-header">
+                <h2>Manage Countries</h2>
+            </div>
             <div class="admin-card">
-                <h3>Add Country</h3>
+                <h3>Add New Country</h3>
                 <div class="inline-form">
                     <input type="text" id="new-country-name" placeholder="Country name">
                     <button class="btn btn-primary" onclick="addCountry()">Add Country</button>
                 </div>
             </div>
-
-            <!-- Add State -->
             <div class="admin-card">
-                <h3>Add State</h3>
+                <h3>All Countries</h3>
+                <div id="countries-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- States Page -->
+        <div id="page-states" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage States</h2>
+            </div>
+            <div class="admin-card">
+                <h3>Add New State</h3>
                 <div class="inline-form">
                     <select id="state-country-select">
                         <option value="">Select Country</option>
@@ -42,10 +81,19 @@
                     <button class="btn btn-primary" onclick="addState()">Add State</button>
                 </div>
             </div>
-
-            <!-- Add City -->
             <div class="admin-card">
-                <h3>Add City</h3>
+                <h3>All States</h3>
+                <div id="states-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Cities Page -->
+        <div id="page-cities" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage Cities</h2>
+            </div>
+            <div class="admin-card">
+                <h3>Add New City</h3>
                 <div class="inline-form">
                     <select id="city-country-select" onchange="loadStatesForCity()">
                         <option value="">Select Country</option>
@@ -57,17 +105,15 @@
                     <button class="btn btn-primary" onclick="addCity()">Add City</button>
                 </div>
             </div>
-        </section>
+            <div class="admin-card">
+                <h3>All Cities</h3>
+                <div id="cities-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Location Tree -->
-        <section class="admin-panel">
-            <h2>Current Locations</h2>
-            <div id="location-tree" class="location-tree"></div>
-        </section>
-
-        <!-- Toast notification -->
-        <div id="toast" class="toast hidden"></div>
-    </main>
+    <!-- Toast notification -->
+    <div id="toast" class="toast hidden"></div>
 
     <!-- Edit Modal -->
     <div id="edit-modal" class="modal hidden">
