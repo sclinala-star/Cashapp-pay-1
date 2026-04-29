@@ -113,10 +113,19 @@ def seed_data():
             "Wyoming": ["Cheyenne", "Casper", "Laramie", "Gillette", "Rock Springs", "Jackson Hole"],
         },
         "Canada": {
-            "Alberta": ["Calgary", "Edmonton", "Red Deer"],
-            "British Columbia": ["Vancouver", "Victoria", "Kelowna"],
-            "Ontario": ["Toronto", "Ottawa", "Hamilton", "London"],
-            "Quebec": ["Montreal", "Quebec City", "Laval"],
+            "Alberta": ["Calgary", "Edmonton", "Red Deer", "Lethbridge", "Medicine Hat", "Fort McMurray", "Grande Prairie", "Airdrie", "Spruce Grove", "St. Albert"],
+            "British Columbia": ["Vancouver", "Victoria", "Surrey", "Burnaby", "Richmond", "Kelowna", "Kamloops", "Nanaimo", "Prince George", "Abbotsford", "Whistler"],
+            "Manitoba": ["Winnipeg", "Brandon", "Steinbach", "Thompson", "Portage la Prairie", "Selkirk", "Winkler", "Dauphin"],
+            "New Brunswick": ["Fredericton", "Saint John", "Moncton", "Dieppe", "Miramichi", "Edmundston", "Bathurst", "Campbellton"],
+            "Newfoundland and Labrador": ["St. John's", "Mount Pearl", "Corner Brook", "Conception Bay South", "Grand Falls-Windsor", "Paradise", "Gander", "Happy Valley-Goose Bay"],
+            "Nova Scotia": ["Halifax", "Dartmouth", "Sydney", "Truro", "New Glasgow", "Glace Bay", "Yarmouth", "Kentville", "Amherst"],
+            "Ontario": ["Toronto", "Ottawa", "Mississauga", "Brampton", "Hamilton", "London", "Markham", "Vaughan", "Kitchener", "Windsor", "Richmond Hill", "Burlington", "Oshawa", "Barrie", "Kingston", "Thunder Bay", "Niagara Falls"],
+            "Prince Edward Island": ["Charlottetown", "Summerside", "Stratford", "Cornwall", "Montague"],
+            "Quebec": ["Montreal", "Quebec City", "Laval", "Gatineau", "Longueuil", "Sherbrooke", "Saguenay", "Levis", "Trois-Rivieres", "Terrebonne", "Saint-Jean-sur-Richelieu"],
+            "Saskatchewan": ["Saskatoon", "Regina", "Prince Albert", "Moose Jaw", "Swift Current", "Yorkton", "North Battleford", "Estevan"],
+            "Northwest Territories": ["Yellowknife", "Hay River", "Inuvik", "Fort Smith", "Behchoko"],
+            "Nunavut": ["Iqaluit", "Rankin Inlet", "Arviat", "Baker Lake", "Cambridge Bay"],
+            "Yukon": ["Whitehorse", "Dawson City", "Watson Lake", "Haines Junction", "Carmacks"],
         },
     }
 
