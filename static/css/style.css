@@ -1187,6 +1187,142 @@ a:hover {
     color: #888;
 }
 
+/* ─── Post Form (Attractive Dark/Golden Theme) ──────────────────── */
+.post-form-wrapper {
+    background: linear-gradient(145deg, #1a1a2e, #16213e, #0f3460);
+    border-radius: 16px;
+    padding: 35px 30px;
+    max-width: 650px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+}
+
+.pf-label {
+    display: block;
+    color: #ffd700;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 8px rgba(255,215,0,0.3);
+}
+
+.pf-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    transition: border 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.pf-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(255,215,0,0.3);
+}
+
+.pf-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.pf-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.pf-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.pf-field-full {
+    margin-bottom: 18px;
+}
+
+.pf-phone-row {
+    display: flex;
+    gap: 8px;
+}
+
+.pf-phone-code {
+    width: 110px !important;
+    flex-shrink: 0;
+}
+
+.pf-phone-num {
+    flex: 1;
+}
+
+.pf-submit-row {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.pf-next-btn {
+    background: linear-gradient(135deg, #ffd700, #ffb300, #ffd700);
+    color: #1a1a2e;
+    border: none;
+    padding: 14px 60px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    font-style: italic;
+    border-radius: 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pf-next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(255,215,0,0.6);
+}
+
+.pf-save-btn {
+    background: linear-gradient(135deg, #ffd700, #ffb300);
+    color: #1a1a2e;
+    border: none;
+    padding: 10px 30px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pf-save-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(255,215,0,0.4);
+}
+
+.pf-success {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(76,175,80,0.3);
+    font-weight: 500;
+}
+
+.pf-error {
+    background: rgba(239, 83, 80, 0.15);
+    color: #ef5350;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(239,83,80,0.3);
+    font-weight: 500;
+}
+
 @media (max-width: 768px) {
     .dashboard-container {
         flex-direction: column;
@@ -1197,11 +1333,14 @@ a:hover {
     .dashboard-main {
         padding: 20px;
     }
-    .form-row {
+    .form-row, .pf-row {
         grid-template-columns: 1fr;
     }
     .repost-card {
         flex-direction: column;
         align-items: flex-start;
+    }
+    .post-form-wrapper {
+        padding: 20px 16px;
     }
 }

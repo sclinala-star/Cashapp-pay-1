@@ -84,13 +84,13 @@
                     {% if posts %}
                     <table class="dash-table">
                         <thead>
-                            <tr><th>Title</th><th>Price</th><th>Status</th><th>Date</th></tr>
+                            <tr><th>Headline</th><th>City</th><th>Status</th><th>Date</th></tr>
                         </thead>
                         <tbody>
                             {% for p in posts[:5] %}
                             <tr>
-                                <td>{{ p.title }}</td>
-                                <td>{{ p.price or '-' }}</td>
+                                <td>{{ p.headline }}</td>
+                                <td>{{ p.city or '-' }}</td>
                                 <td><span class="status-badge status-{{ p.status }}">{{ p.status }}</span></td>
                                 <td>{{ p.created_at[:10] }}</td>
                             </tr>
@@ -107,32 +107,93 @@
 
             <!-- Post Public Page -->
             <div id="dash-post-public" class="dash-page">
-                <h2>Post Public Ad</h2>
-                <div class="dash-form-card">
-                    <form id="create-post-form" class="auth-form">
-                        <div class="form-group">
-                            <label for="post-title">Title *</label>
-                            <input type="text" id="post-title" placeholder="Ad title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="post-description">Description *</label>
-                            <textarea id="post-description" rows="5" placeholder="Describe your ad..." required style="width:100%;padding:11px 14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;font-family:inherit;resize:vertical;"></textarea>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="post-category">Category</label>
-                                <input type="text" id="post-category" placeholder="e.g. Electronics, Vehicles">
+                <h2>Create New Ad</h2>
+                <div class="post-form-wrapper">
+                    <form id="create-post-form">
+                        <div class="pf-row">
+                            <div class="pf-field">
+                                <label class="pf-label">I AM:</label>
+                                <select id="post-i-am" class="pf-input">
+                                    <option value="">-- Select --</option>
+                                    <option value="Man">Man</option>
+                                    <option value="Woman">Woman</option>
+                                    <option value="Couple (MF)">Couple (MF)</option>
+                                    <option value="Couple (MM)">Couple (MM)</option>
+                                    <option value="Couple (FF)">Couple (FF)</option>
+                                    <option value="Trans">Trans</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
-                            <div class="form-group">
-                                <label for="post-location">Location</label>
-                                <input type="text" id="post-location" placeholder="e.g. New York, NY">
+                            <div class="pf-field">
+                                <label class="pf-label">I SEE:</label>
+                                <select id="post-i-see" class="pf-input">
+                                    <option value="">-- Select --</option>
+                                    <option value="Man">Man</option>
+                                    <option value="Woman">Woman</option>
+                                    <option value="Couple (MF)">Couple (MF)</option>
+                                    <option value="Couple (MM)">Couple (MM)</option>
+                                    <option value="Couple (FF)">Couple (FF)</option>
+                                    <option value="Trans">Trans</option>
+                                    <option value="Anyone">Anyone</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="post-price">Price</label>
-                            <input type="text" id="post-price" placeholder="e.g. $100 or Free">
+
+                        <div class="pf-row">
+                            <div class="pf-field">
+                                <label class="pf-label">Name/Alias:</label>
+                                <input type="text" id="post-name-alias" class="pf-input" placeholder="optional">
+                            </div>
+                            <div class="pf-field">
+                                <label class="pf-label">Age:</label>
+                                <select id="post-age" class="pf-input">
+                                    <option value="">-Age-</option>
+                                    {% for a in range(18, 81) %}
+                                    <option value="{{ a }}">{{ a }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
-                        <button type="submit" class="auth-btn" style="width:auto;padding:10px 40px;">Publish Ad</button>
+
+                        <div class="pf-field-full">
+                            <label class="pf-label">Headline: *</label>
+                            <input type="text" id="post-headline" class="pf-input" required>
+                        </div>
+
+                        <div class="pf-field-full">
+                            <label class="pf-label">Body: *</label>
+                            <textarea id="post-body" class="pf-input pf-textarea" rows="6" required></textarea>
+                        </div>
+
+                        <div class="pf-row">
+                            <div class="pf-field">
+                                <label class="pf-label">City:</label>
+                                <input type="text" id="post-city" class="pf-input" placeholder="e.g. New York">
+                            </div>
+                            <div class="pf-field">
+                                <label class="pf-label">Phone:</label>
+                                <div class="pf-phone-row">
+                                    <select id="post-phone-code" class="pf-input pf-phone-code">
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+44">🇬🇧 +44</option>
+                                        <option value="+91">🇮🇳 +91</option>
+                                        <option value="+880">🇧🇩 +880</option>
+                                        <option value="+61">🇦🇺 +61</option>
+                                        <option value="+81">🇯🇵 +81</option>
+                                    </select>
+                                    <input type="text" id="post-phone" class="pf-input pf-phone-num" placeholder="Phone number">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pf-field-full">
+                            <label class="pf-label">Location/Area:</label>
+                            <input type="text" id="post-location" class="pf-input" placeholder="optional">
+                        </div>
+
+                        <div class="pf-submit-row">
+                            <button type="submit" class="pf-next-btn">Next</button>
+                        </div>
                     </form>
                     <div id="post-create-msg" style="margin-top:12px;"></div>
                 </div>
@@ -144,37 +205,82 @@
                 <div id="edit-posts-list">
                     {% if posts %}
                     {% for p in posts %}
-                    <div class="post-edit-card" data-post-id="{{ p.id }}">
+                    <div class="post-edit-card">
                         <div class="post-edit-header">
-                            <h3>{{ p.title }}</h3>
+                            <h3>{{ p.headline }}</h3>
                             <span class="status-badge status-{{ p.status }}">{{ p.status }}</span>
                         </div>
-                        <form class="edit-post-form auth-form" data-id="{{ p.id }}">
-                            <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" value="{{ p.title }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Description</label>
-                                <textarea name="description" rows="3" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;resize:vertical;">{{ p.description }}</textarea>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Category</label>
-                                    <input type="text" name="category" value="{{ p.category }}">
+                        <form class="edit-post-form" data-id="{{ p.id }}">
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">I AM:</label>
+                                    <select name="i_am" class="pf-input">
+                                        <option value="">-- Select --</option>
+                                        {% for opt in ['Man','Woman','Couple (MF)','Couple (MM)','Couple (FF)','Trans','Other'] %}
+                                        <option value="{{ opt }}" {{ 'selected' if p.i_am == opt }}>{{ opt }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
-                                <div class="form-group">
-                                    <label>Location</label>
-                                    <input type="text" name="location" value="{{ p.location }}">
+                                <div class="pf-field">
+                                    <label class="pf-label">I SEE:</label>
+                                    <select name="i_see" class="pf-input">
+                                        <option value="">-- Select --</option>
+                                        {% for opt in ['Man','Woman','Couple (MF)','Couple (MM)','Couple (FF)','Trans','Anyone'] %}
+                                        <option value="{{ opt }}" {{ 'selected' if p.i_see == opt }}>{{ opt }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>Price</label>
-                                <input type="text" name="price" value="{{ p.price }}">
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">Name/Alias:</label>
+                                    <input type="text" name="name_alias" class="pf-input" value="{{ p.name_alias }}">
+                                </div>
+                                <div class="pf-field">
+                                    <label class="pf-label">Age:</label>
+                                    <select name="age" class="pf-input">
+                                        <option value="">-Age-</option>
+                                        {% for a in range(18, 81) %}
+                                        <option value="{{ a }}" {{ 'selected' if p.age == a|string }}>{{ a }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="pf-field-full">
+                                <label class="pf-label">Headline:</label>
+                                <input type="text" name="headline" class="pf-input" value="{{ p.headline }}" required>
+                            </div>
+                            <div class="pf-field-full">
+                                <label class="pf-label">Body:</label>
+                                <textarea name="body" class="pf-input pf-textarea" rows="4" required>{{ p.body }}</textarea>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">City:</label>
+                                    <input type="text" name="city" class="pf-input" value="{{ p.city }}">
+                                </div>
+                                <div class="pf-field">
+                                    <label class="pf-label">Phone:</label>
+                                    <div class="pf-phone-row">
+                                        <select name="phone_code" class="pf-input pf-phone-code">
+                                            <option value="+1" {{ 'selected' if p.phone_code == '+1' }}>🇺🇸 +1</option>
+                                            <option value="+44" {{ 'selected' if p.phone_code == '+44' }}>🇬🇧 +44</option>
+                                            <option value="+91" {{ 'selected' if p.phone_code == '+91' }}>🇮🇳 +91</option>
+                                            <option value="+880" {{ 'selected' if p.phone_code == '+880' }}>🇧🇩 +880</option>
+                                            <option value="+61" {{ 'selected' if p.phone_code == '+61' }}>🇦🇺 +61</option>
+                                            <option value="+81" {{ 'selected' if p.phone_code == '+81' }}>🇯🇵 +81</option>
+                                        </select>
+                                        <input type="text" name="phone" class="pf-input pf-phone-num" value="{{ p.phone }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pf-field-full">
+                                <label class="pf-label">Location/Area:</label>
+                                <input type="text" name="location_area" class="pf-input" value="{{ p.location_area }}">
                             </div>
                             <div class="post-edit-actions">
-                                <button type="submit" class="auth-btn" style="width:auto;padding:8px 25px;">Save Changes</button>
-                                <button type="button" class="btn btn-danger delete-post-btn" data-id="{{ p.id }}">Delete</button>
+                                <button type="submit" class="pf-save-btn">Save Changes</button>
+                                <button type="button" class="btn-danger delete-post-btn" data-id="{{ p.id }}">Delete</button>
                             </div>
                             <div class="edit-msg" style="margin-top:8px;"></div>
                         </form>
@@ -196,10 +302,10 @@
                     {% for p in posts %}
                     <div class="repost-card">
                         <div class="repost-info">
-                            <h3>{{ p.title }}</h3>
+                            <h3>{{ p.headline }}</h3>
                             <p>Status: <span class="status-badge status-{{ p.status }}">{{ p.status }}</span> | Reposted: {{ p.repost_count }} times</p>
                         </div>
-                        <button class="auth-btn repost-btn" data-id="{{ p.id }}" style="width:auto;padding:8px 25px;">Repost Now</button>
+                        <button class="pf-save-btn repost-btn" data-id="{{ p.id }}">Repost Now</button>
                         <span class="repost-msg" style="margin-left:10px;"></span>
                     </div>
                     {% endfor %}
@@ -252,7 +358,7 @@
                             <label for="confirm_new_password">Confirm New Password</label>
                             <input type="password" id="confirm_new_password" name="confirm_new_password" required>
                         </div>
-                        <button type="submit" class="auth-btn" style="width:auto;padding:10px 30px;">Update Password</button>
+                        <button type="submit" class="pf-save-btn">Update Password</button>
                     </form>
                     <div id="password-msg" style="margin-top:10px;"></div>
                 </div>
@@ -262,7 +368,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Sidebar navigation
         const navItems = document.querySelectorAll('.dash-nav-item[data-page]');
         const pages = document.querySelectorAll('.dash-page');
         navItems.forEach(item => {
@@ -277,18 +382,22 @@
             });
         });
 
-        // Create post
         const createForm = document.getElementById('create-post-form');
         if (createForm) {
             createForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const msgDiv = document.getElementById('post-create-msg');
                 const body = {
-                    title: document.getElementById('post-title').value,
-                    description: document.getElementById('post-description').value,
-                    category: document.getElementById('post-category').value,
-                    location: document.getElementById('post-location').value,
-                    price: document.getElementById('post-price').value
+                    i_am: document.getElementById('post-i-am').value,
+                    i_see: document.getElementById('post-i-see').value,
+                    name_alias: document.getElementById('post-name-alias').value,
+                    age: document.getElementById('post-age').value,
+                    headline: document.getElementById('post-headline').value,
+                    body: document.getElementById('post-body').value,
+                    city: document.getElementById('post-city').value,
+                    phone_code: document.getElementById('post-phone-code').value,
+                    phone: document.getElementById('post-phone').value,
+                    location_area: document.getElementById('post-location').value
                 };
                 const res = await fetch('/api/posts', {
                     method: 'POST',
@@ -297,26 +406,30 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    msgDiv.innerHTML = '<div style="background:#e8f5e9;color:#2e7d32;padding:10px;border-radius:6px;">Ad published successfully! Refreshing...</div>';
+                    msgDiv.innerHTML = '<div class="pf-success">Ad published successfully! Refreshing...</div>';
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    msgDiv.innerHTML = '<div class="auth-error">' + (data.error || 'Failed') + '</div>';
+                    msgDiv.innerHTML = '<div class="pf-error">' + (data.error || 'Failed') + '</div>';
                 }
             });
         }
 
-        // Edit post forms
         document.querySelectorAll('.edit-post-form').forEach(form => {
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const id = this.dataset.id;
                 const msgDiv = this.querySelector('.edit-msg');
                 const body = {
-                    title: this.querySelector('[name=title]').value,
-                    description: this.querySelector('[name=description]').value,
-                    category: this.querySelector('[name=category]').value,
-                    location: this.querySelector('[name=location]').value,
-                    price: this.querySelector('[name=price]').value
+                    i_am: this.querySelector('[name=i_am]').value,
+                    i_see: this.querySelector('[name=i_see]').value,
+                    name_alias: this.querySelector('[name=name_alias]').value,
+                    age: this.querySelector('[name=age]').value,
+                    headline: this.querySelector('[name=headline]').value,
+                    body: this.querySelector('[name=body]').value,
+                    city: this.querySelector('[name=city]').value,
+                    phone_code: this.querySelector('[name=phone_code]').value,
+                    phone: this.querySelector('[name=phone]').value,
+                    location_area: this.querySelector('[name=location_area]').value
                 };
                 const res = await fetch('/api/posts/' + id, {
                     method: 'PUT',
@@ -325,42 +438,37 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    msgDiv.innerHTML = '<div style="background:#e8f5e9;color:#2e7d32;padding:8px;border-radius:6px;font-size:0.85rem;">Saved!</div>';
+                    msgDiv.innerHTML = '<div class="pf-success" style="font-size:0.85rem;">Saved!</div>';
                     setTimeout(() => msgDiv.innerHTML = '', 2000);
                 } else {
-                    msgDiv.innerHTML = '<div class="auth-error" style="font-size:0.85rem;">' + (data.error || 'Failed') + '</div>';
+                    msgDiv.innerHTML = '<div class="pf-error" style="font-size:0.85rem;">' + (data.error || 'Failed') + '</div>';
                 }
             });
         });
 
-        // Delete post
         document.querySelectorAll('.delete-post-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 if (!confirm('Delete this post?')) return;
-                const id = this.dataset.id;
-                const res = await fetch('/api/posts/' + id, { method: 'DELETE' });
+                const res = await fetch('/api/posts/' + this.dataset.id, { method: 'DELETE' });
                 if (res.ok) location.reload();
             });
         });
 
-        // Repost
         document.querySelectorAll('.repost-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
-                const id = this.dataset.id;
                 const msgSpan = this.nextElementSibling;
-                const res = await fetch('/api/posts/' + id + '/repost', { method: 'POST' });
+                const res = await fetch('/api/posts/' + this.dataset.id + '/repost', { method: 'POST' });
                 const data = await res.json();
                 if (res.ok) {
-                    msgSpan.innerHTML = '<span style="color:#2e7d32;">Reposted! (Total: ' + data.repost_count + ')</span>';
+                    msgSpan.innerHTML = '<span style="color:#4caf50;">Reposted! (Total: ' + data.repost_count + ')</span>';
                     this.textContent = 'Reposted!';
                     this.disabled = true;
                 } else {
-                    msgSpan.innerHTML = '<span style="color:#c62828;">' + (data.error || 'Failed') + '</span>';
+                    msgSpan.innerHTML = '<span style="color:#ef5350;">' + (data.error || 'Failed') + '</span>';
                 }
             });
         });
 
-        // Change password
         const pwForm = document.getElementById('change-password-form');
         if (pwForm) {
             pwForm.addEventListener('submit', async function(e) {
@@ -370,7 +478,7 @@
                 const newP = document.getElementById('new_password').value;
                 const conf = document.getElementById('confirm_new_password').value;
                 if (newP !== conf) {
-                    msgDiv.innerHTML = '<div class="auth-error">Passwords do not match</div>';
+                    msgDiv.innerHTML = '<div class="pf-error">Passwords do not match</div>';
                     return;
                 }
                 const res = await fetch('/api/change-password', {
@@ -380,10 +488,10 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    msgDiv.innerHTML = '<div style="background:#e8f5e9;color:#2e7d32;padding:10px;border-radius:6px;">Password updated successfully!</div>';
+                    msgDiv.innerHTML = '<div class="pf-success">Password updated successfully!</div>';
                     pwForm.reset();
                 } else {
-                    msgDiv.innerHTML = '<div class="auth-error">' + (data.error || 'Failed') + '</div>';
+                    msgDiv.innerHTML = '<div class="pf-error">' + (data.error || 'Failed') + '</div>';
                 }
             });
         }

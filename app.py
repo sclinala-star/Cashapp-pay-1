@@ -207,7 +207,7 @@ def user_dashboard(request: Request):
     balance = u["balance"] if u else 0.00
     joined_date = u["created_at"][:10] if u and u["created_at"] else "N/A"
     posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC", (user["user_id"],)).fetchall()
-    post_list = [{"id": p["id"], "title": p["title"], "description": p["description"], "category": p["category"], "location": p["location"], "price": p["price"], "status": p["status"], "repost_count": p["repost_count"], "created_at": p["created_at"], "updated_at": p["updated_at"]} for p in posts]
+    post_list = [{"id": p["id"], "i_am": p["i_am"], "i_see": p["i_see"], "name_alias": p["name_alias"], "age": p["age"], "headline": p["headline"], "body": p["body"], "city": p["city"], "phone_code": p["phone_code"], "phone": p["phone"], "location_area": p["location_area"], "status": p["status"], "repost_count": p["repost_count"], "created_at": p["created_at"], "updated_at": p["updated_at"]} for p in posts]
     active_count = sum(1 for p in post_list if p["status"] == "active")
     db.close()
     return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date, "balance": balance, "posts": post_list, "active_count": active_count})
@@ -216,19 +216,29 @@ def user_dashboard(request: Request):
 # ─── API: User Posts ─────────────────────────────────────────────────
 
 class PostCreate(BaseModel):
-    title: str
-    description: str
-    category: str = ""
-    location: str = ""
-    price: str = ""
+    i_am: str = ""
+    i_see: str = ""
+    name_alias: str = ""
+    age: str = ""
+    headline: str
+    body: str
+    city: str = ""
+    phone_code: str = "+1"
+    phone: str = ""
+    location_area: str = ""
 
 
 class PostUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    category: Optional[str] = None
-    location: Optional[str] = None
-    price: Optional[str] = None
+    i_am: Optional[str] = None
+    i_see: Optional[str] = None
+    name_alias: Optional[str] = None
+    age: Optional[str] = None
+    headline: Optional[str] = None
+    body: Optional[str] = None
+    city: Optional[str] = None
+    phone_code: Optional[str] = None
+    phone: Optional[str] = None
+    location_area: Optional[str] = None
 
 
 @app.get("/api/posts")
@@ -238,7 +248,7 @@ def api_get_user_posts(request: Request):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     db = get_db()
     posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC", (user["user_id"],)).fetchall()
-    result = [{"id": p["id"], "title": p["title"], "description": p["description"], "category": p["category"], "location": p["location"], "price": p["price"], "status": p["status"], "repost_count": p["repost_count"], "created_at": p["created_at"]} for p in posts]
+    result = [{"id": p["id"], "headline": p["headline"], "body": p["body"], "city": p["city"], "status": p["status"], "repost_count": p["repost_count"], "created_at": p["created_at"]} for p in posts]
     db.close()
     return result
 
@@ -248,19 +258,19 @@ def api_create_post(request: Request, data: PostCreate):
     user = get_current_user(request)
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    title = data.title.strip()
-    description = data.description.strip()
-    if not title or not description:
-        return JSONResponse({"error": "Title and description are required"}, status_code=400)
+    headline = data.headline.strip()
+    body = data.body.strip()
+    if not headline or not body:
+        return JSONResponse({"error": "Headline and body are required"}, status_code=400)
     db = get_db()
     cursor = db.execute(
-        "INSERT INTO posts (user_id, title, description, category, location, price) VALUES (?, ?, ?, ?, ?, ?)",
-        (user["user_id"], title, description, data.category.strip(), data.location.strip(), data.price.strip())
+        "INSERT INTO posts (user_id, i_am, i_see, name_alias, age, headline, body, city, phone_code, phone, location_area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (user["user_id"], data.i_am.strip(), data.i_see.strip(), data.name_alias.strip(), data.age.strip(), headline, body, data.city.strip(), data.phone_code.strip(), data.phone.strip(), data.location_area.strip())
     )
     db.commit()
     post_id = cursor.lastrowid
     db.close()
-    return {"id": post_id, "title": title, "description": description, "status": "active"}
+    return {"id": post_id, "headline": headline, "status": "active"}
 
 
 @app.put("/api/posts/{post_id}")
@@ -273,19 +283,24 @@ def api_update_post(request: Request, post_id: int, data: PostUpdate):
     if not post:
         db.close()
         return JSONResponse({"error": "Post not found"}, status_code=404)
-    title = data.title.strip() if data.title else post["title"]
-    description = data.description.strip() if data.description else post["description"]
-    category = data.category.strip() if data.category is not None else post["category"]
-    location = data.location.strip() if data.location is not None else post["location"]
-    price = data.price.strip() if data.price is not None else post["price"]
-    if not title or not description:
+    i_am = data.i_am.strip() if data.i_am is not None else post["i_am"]
+    i_see = data.i_see.strip() if data.i_see is not None else post["i_see"]
+    name_alias = data.name_alias.strip() if data.name_alias is not None else post["name_alias"]
+    age = data.age.strip() if data.age is not None else post["age"]
+    headline = data.headline.strip() if data.headline else post["headline"]
+    body = data.body.strip() if data.body else post["body"]
+    city = data.city.strip() if data.city is not None else post["city"]
+    phone_code = data.phone_code.strip() if data.phone_code is not None else post["phone_code"]
+    phone = data.phone.strip() if data.phone is not None else post["phone"]
+    location_area = data.location_area.strip() if data.location_area is not None else post["location_area"]
+    if not headline or not body:
         db.close()
-        return JSONResponse({"error": "Title and description are required"}, status_code=400)
-    db.execute("UPDATE posts SET title=?, description=?, category=?, location=?, price=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
-               (title, description, category, location, price, post_id))
+        return JSONResponse({"error": "Headline and body are required"}, status_code=400)
+    db.execute("UPDATE posts SET i_am=?, i_see=?, name_alias=?, age=?, headline=?, body=?, city=?, phone_code=?, phone=?, location_area=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+               (i_am, i_see, name_alias, age, headline, body, city, phone_code, phone, location_area, post_id))
     db.commit()
     db.close()
-    return {"id": post_id, "title": title, "description": description}
+    return {"id": post_id, "headline": headline}
 
 
 @app.post("/api/posts/{post_id}/repost")
