@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ city_name }} - Classified Ads</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
+            <nav class="header-nav">
+                <a href="/" class="golden-btn">Home</a>
+                <a href="/login" class="golden-btn">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="city-page-container">
+        <h2 class="city-page-title">{{ city_name }}</h2>
+        <p class="city-page-subtitle">Classified Ads in {{ city_name }}</p>
+
+        {% if posts %}
+        <div class="city-posts-grid">
+            {% for post in posts %}
+            <div class="city-post-card">
+                <div class="city-post-header">
+                    <span class="city-post-badge">{{ post.i_am }} → {{ post.i_see }}</span>
+                    {% if post.age %}<span class="city-post-age">Age: {{ post.age }}</span>{% endif %}
+                </div>
+                <h3 class="city-post-headline">{{ post.headline }}</h3>
+                <p class="city-post-body">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</p>
+                <div class="city-post-footer">
+                    {% if post.name_alias %}<span>{{ post.name_alias }}</span>{% endif %}
+                    <span>📍 {{ post.city }}</span>
+                    <span class="city-post-date">{{ post.created_at }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="city-no-posts">
+            <p>No ads posted in {{ city_name }} yet.</p>
+            <a href="/register" class="golden-btn">Post an Ad</a>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Classified Ads. All rights reserved.</p>
+    </footer>
+</body>
+</html>

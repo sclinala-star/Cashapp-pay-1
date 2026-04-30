@@ -136,6 +136,23 @@ def index(request: Request):
     return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url, "user": None})
 
 
+# ─── City Page ────────────────────────────────────────────────────────
+
+@app.get("/city/{city_name}", response_class=HTMLResponse)
+def city_page(request: Request, city_name: str):
+    from urllib.parse import unquote
+    city_name = unquote(city_name)
+    db = get_db()
+    posts = db.execute(
+        "SELECT * FROM posts WHERE city LIKE ? AND status = 'active' ORDER BY created_at DESC",
+        (f"%{city_name}%",)
+    ).fetchall()
+    post_list = [dict(p) for p in posts]
+    db.close()
+    logo_url = get_logo_url()
+    return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url})
+
+
 # ─── User Auth ───────────────────────────────────────────────────────
 
 @app.get("/login", response_class=HTMLResponse)

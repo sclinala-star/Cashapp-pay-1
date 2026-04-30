@@ -38,7 +38,7 @@
                     <h3 class="state-name">{{ state.name }}</h3>
                     <ul class="city-list">
                         {% for city in state.cities %}
-                        <li><a href="#">{{ city.name }}</a></li>
+                        <li><a href="/city/{{ city.name | urlencode }}">{{ city.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
