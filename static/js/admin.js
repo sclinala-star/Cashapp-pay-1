@@ -4,6 +4,7 @@ let menuData = [];
 document.addEventListener("DOMContentLoaded", () => {
     loadLocations();
     loadMenuItems();
+    loadLogo();
 });
 
 // ─── Sidebar Navigation ─────────────────────────────────────────
@@ -426,6 +427,55 @@ async function deleteMenuItem(id, name) {
     if (res.ok) {
         showToast("Menu item deleted", "success");
         loadMenuItems();
+    }
+}
+
+// ─── Logo Management ────────────────────────────────────────────
+
+async function loadLogo() {
+    const res = await fetch("/api/logo");
+    const data = await res.json();
+    const preview = document.getElementById("logo-preview");
+    if (!preview) return;
+
+    if (data.logo_url) {
+        preview.innerHTML = `<img src="${escapeHtmlAttr(data.logo_url)}" alt="Current Logo" style="max-height:80px;max-width:300px;border:1px solid #444;border-radius:8px;padding:8px;background:#222;">`;
+    } else {
+        preview.innerHTML = '<p class="empty-msg">No logo uploaded. The site header shows "Classified" text.</p>';
+    }
+}
+
+async function uploadLogo() {
+    const input = document.getElementById("logo-file-input");
+    if (!input.files || !input.files[0]) {
+        return showToast("Please select an image file", "error");
+    }
+
+    const formData = new FormData();
+    formData.append("file", input.files[0]);
+
+    const res = await fetch("/api/logo", {
+        method: "POST",
+        body: formData,
+    });
+
+    if (res.ok) {
+        showToast("Logo uploaded successfully", "success");
+        input.value = "";
+        loadLogo();
+    } else {
+        const data = await res.json();
+        showToast(data.error || "Failed to upload logo", "error");
+    }
+}
+
+async function deleteLogo() {
+    if (!confirm("Remove the website logo? The header will show 'Classified' text instead.")) return;
+
+    const res = await fetch("/api/logo", { method: "DELETE" });
+    if (res.ok) {
+        showToast("Logo deleted", "success");
+        loadLogo();
     }
 }
 

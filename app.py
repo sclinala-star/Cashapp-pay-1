@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -7,13 +7,18 @@ from itsdangerous import URLSafeSerializer
 from typing import Optional
 from urllib.parse import urlparse
 import os
+import shutil
+import uuid
 
 from database import get_db, init_db, seed_data
 
 app = FastAPI()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 SECRET_KEY = "change-this-in-production-classified-secret-key"
@@ -39,6 +44,17 @@ def is_logged_in(request: Request) -> bool:
 def require_login(request: Request):
     if not is_logged_in(request):
         raise HTTPException(status_code=401, detail="Not authenticated")
+
+
+LOGO_FILE = os.path.join(UPLOADS_DIR, ".logo_filename")
+
+def get_logo_url():
+    if os.path.exists(LOGO_FILE):
+        with open(LOGO_FILE, "r") as f:
+            fname = f.read().strip()
+        if fname and os.path.exists(os.path.join(UPLOADS_DIR, fname)):
+            return f"/uploads/{fname}"
+    return None
 
 
 @app.on_event("startup")
@@ -87,7 +103,8 @@ def index(request: Request):
     menu_list = [{"id": m["id"], "name": m["name"], "url": m["url"]} for m in menu_items]
 
     db.close()
-    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list})
+    logo_url = get_logo_url()
+    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url})
 
 
 # ─── Admin Auth ──────────────────────────────────────────────────────
@@ -461,4 +478,54 @@ def api_delete_menu_item(request: Request, item_id: int):
     db.execute("DELETE FROM menu_items WHERE id = ?", (item_id,))
     db.commit()
     db.close()
+    return {"success": True}
+
+
+# ─── API: Logo Upload ────────────────────────────────────────────────
+
+ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"}
+
+@app.get("/api/logo")
+def api_get_logo():
+    logo_url = get_logo_url()
+    return {"logo_url": logo_url}
+
+
+@app.post("/api/logo")
+async def api_upload_logo(request: Request, file: UploadFile = File(...)):
+    require_login(request)
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in ALLOWED_LOGO_EXTENSIONS:
+        return JSONResponse({"error": "Invalid file type. Use PNG, JPG, GIF, SVG, or WEBP."}, status_code=400)
+
+    # Remove old logo
+    if os.path.exists(LOGO_FILE):
+        with open(LOGO_FILE, "r") as f:
+            old_name = f.read().strip()
+        old_path = os.path.join(UPLOADS_DIR, old_name)
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+    # Save new logo
+    filename = f"logo_{uuid.uuid4().hex[:8]}{ext}"
+    filepath = os.path.join(UPLOADS_DIR, filename)
+    with open(filepath, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    with open(LOGO_FILE, "w") as f:
+        f.write(filename)
+
+    return {"logo_url": f"/uploads/{filename}"}
+
+
+@app.delete("/api/logo")
+def api_delete_logo(request: Request):
+    require_login(request)
+    if os.path.exists(LOGO_FILE):
+        with open(LOGO_FILE, "r") as f:
+            old_name = f.read().strip()
+        old_path = os.path.join(UPLOADS_DIR, old_name)
+        if os.path.exists(old_path):
+            os.remove(old_path)
+        os.remove(LOGO_FILE)
     return {"success": True}

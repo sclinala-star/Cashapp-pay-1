@@ -9,13 +9,21 @@
 <body>
     <header class="main-header">
         <div class="header-content">
-            <h1 class="site-title">Classified</h1>
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
             <nav class="header-menu">
                 {% for item in menu_items %}
                 <a href="{{ item.url }}" class="header-menu-btn" target="_blank" rel="noopener">{{ item.name }}</a>
                 {% endfor %}
             </nav>
             <nav class="header-nav">
+                <a href="/" class="golden-btn">Post Ads</a>
+                <a href="/admin/login" class="golden-btn">Login</a>
                 <a href="/">Home</a>
                 <a href="/admin">Admin</a>
             </nav>
