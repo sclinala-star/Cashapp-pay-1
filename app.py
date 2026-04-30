@@ -332,40 +332,48 @@ async def api_create_post(
     if not headline or not body_text:
         return JSONResponse({"error": "Headline and body are required"}, status_code=400)
     db = get_db()
-    cursor = db.execute(
-        "INSERT INTO posts (user_id, i_am, i_see, name_alias, age, headline, body, city, phone_code, phone, location_area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (user["user_id"], i_am.strip(), i_see.strip(), name_alias.strip(), age.strip(), headline, body_text, city.strip(), phone_code.strip(), phone.strip(), location_area.strip())
-    )
-    db.commit()
-    post_id = cursor.lastrowid
+    db_user = db.execute("SELECT id FROM users WHERE id = ?", (user["user_id"],)).fetchone()
+    if not db_user:
+        db.close()
+        return JSONResponse({"error": "Session expired. Please login again."}, status_code=401)
+    try:
+        cursor = db.execute(
+            "INSERT INTO posts (user_id, i_am, i_see, name_alias, age, headline, body, city, phone_code, phone, location_area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (user["user_id"], i_am.strip(), i_see.strip(), name_alias.strip(), age.strip(), headline, body_text, city.strip(), phone_code.strip(), phone.strip(), location_area.strip())
+        )
+        db.commit()
+        post_id = cursor.lastrowid
 
-    slot = 0
-    if photos:
-        for photo in photos:
-            if photo.filename:
-                ext = os.path.splitext(photo.filename)[1] or ".jpg"
-                fname = f"post_{post_id}_photo_{slot}_{uuid.uuid4().hex[:8]}{ext}"
-                fpath = os.path.join(MEDIA_DIR, fname)
-                content = await photo.read()
-                with open(fpath, "wb") as f:
-                    f.write(content)
-                db.execute("INSERT INTO post_media (post_id, media_type, filename, slot) VALUES (?, 'photo', ?, ?)", (post_id, fname, slot))
-                slot += 1
-    slot = 0
-    if videos:
-        for video in videos:
-            if video.filename:
-                ext = os.path.splitext(video.filename)[1] or ".mp4"
-                fname = f"post_{post_id}_video_{slot}_{uuid.uuid4().hex[:8]}{ext}"
-                fpath = os.path.join(MEDIA_DIR, fname)
-                content = await video.read()
-                with open(fpath, "wb") as f:
-                    f.write(content)
-                db.execute("INSERT INTO post_media (post_id, media_type, filename, slot) VALUES (?, 'video', ?, ?)", (post_id, fname, slot))
-                slot += 1
-    db.commit()
-    db.close()
-    return {"id": post_id, "headline": headline, "status": "active"}
+        slot = 0
+        if photos:
+            for photo in photos:
+                if photo.filename:
+                    ext = os.path.splitext(photo.filename)[1] or ".jpg"
+                    fname = f"post_{post_id}_photo_{slot}_{uuid.uuid4().hex[:8]}{ext}"
+                    fpath = os.path.join(MEDIA_DIR, fname)
+                    content = await photo.read()
+                    with open(fpath, "wb") as f:
+                        f.write(content)
+                    db.execute("INSERT INTO post_media (post_id, media_type, filename, slot) VALUES (?, 'photo', ?, ?)", (post_id, fname, slot))
+                    slot += 1
+        slot = 0
+        if videos:
+            for video in videos:
+                if video.filename:
+                    ext = os.path.splitext(video.filename)[1] or ".mp4"
+                    fname = f"post_{post_id}_video_{slot}_{uuid.uuid4().hex[:8]}{ext}"
+                    fpath = os.path.join(MEDIA_DIR, fname)
+                    content = await video.read()
+                    with open(fpath, "wb") as f:
+                        f.write(content)
+                    db.execute("INSERT INTO post_media (post_id, media_type, filename, slot) VALUES (?, 'video', ?, ?)", (post_id, fname, slot))
+                    slot += 1
+        db.commit()
+        db.close()
+        return {"id": post_id, "headline": headline, "status": "active"}
+    except Exception as e:
+        db.close()
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.put("/api/posts/{post_id}")
