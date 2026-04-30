@@ -461,7 +461,7 @@ def api_update_menu_item(request: Request, item_id: int, data: MenuItemUpdate):
     if not name:
         db.close()
         return JSONResponse({"error": "Menu item name is required"}, status_code=400)
-    if not is_safe_url(url):
+    if url != "#" and not is_safe_url(url):
         db.close()
         return JSONResponse({"error": "URL must use http:// or https://"}, status_code=400)
 
@@ -483,7 +483,7 @@ def api_delete_menu_item(request: Request, item_id: int):
 
 # ─── API: Logo Upload ────────────────────────────────────────────────
 
-ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"}
+ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 @app.get("/api/logo")
 def api_get_logo():
