@@ -9,6 +9,8 @@ from urllib.parse import urlparse
 import os
 import shutil
 import uuid
+import hashlib
+import re
 
 from database import get_db, init_db, seed_data
 
@@ -44,6 +46,30 @@ def is_logged_in(request: Request) -> bool:
 def require_login(request: Request):
     if not is_logged_in(request):
         raise HTTPException(status_code=401, detail="Not authenticated")
+
+
+USER_SESSION_COOKIE = "user_session"
+
+
+def hash_password(password: str) -> str:
+    salt = uuid.uuid4().hex
+    return salt + ":" + hashlib.sha256((salt + password).encode()).hexdigest()
+
+
+def verify_password(password: str, stored: str) -> bool:
+    salt, hashed = stored.split(":", 1)
+    return hashlib.sha256((salt + password).encode()).hexdigest() == hashed
+
+
+def get_current_user(request: Request):
+    token = request.cookies.get(USER_SESSION_COOKIE)
+    if not token:
+        return None
+    try:
+        data = serializer.loads(token)
+        return data
+    except Exception:
+        return None
 
 
 LOGO_FILE = os.path.join(UPLOADS_DIR, ".logo_filename")
@@ -104,7 +130,76 @@ def index(request: Request):
 
     db.close()
     logo_url = get_logo_url()
-    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url})
+    user = get_current_user(request)
+    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url, "user": user})
+
+
+# ─── User Auth ───────────────────────────────────────────────────────
+
+@app.get("/login", response_class=HTMLResponse)
+def user_login_page(request: Request):
+    user = get_current_user(request)
+    if user:
+        return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse(request=request, name="user_login.html", context={"error": None, "logo_url": get_logo_url()})
+
+
+@app.post("/login")
+def user_login(request: Request, email: str = Form(...), password: str = Form(...)):
+    db = get_db()
+    user = db.execute("SELECT * FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
+    db.close()
+
+    if user and verify_password(password, user["password_hash"]):
+        token = serializer.dumps({"user_id": user["id"], "full_name": user["full_name"], "email": user["email"]})
+        response = RedirectResponse(url="/", status_code=303)
+        response.set_cookie(USER_SESSION_COOKIE, token, httponly=True, max_age=86400)
+        return response
+
+    return templates.TemplateResponse(request=request, name="user_login.html", context={"error": "Invalid email or password", "logo_url": get_logo_url()})
+
+
+@app.get("/register", response_class=HTMLResponse)
+def user_register_page(request: Request):
+    user = get_current_user(request)
+    if user:
+        return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse(request=request, name="user_register.html", context={"error": None, "logo_url": get_logo_url()})
+
+
+@app.post("/register")
+def user_register(request: Request, full_name: str = Form(...), email: str = Form(...), password: str = Form(...), confirm_password: str = Form(...)):
+    full_name = full_name.strip()
+    email = email.strip().lower()
+
+    if not full_name:
+        return templates.TemplateResponse(request=request, name="user_register.html", context={"error": "Full name is required", "logo_url": get_logo_url()})
+    if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+        return templates.TemplateResponse(request=request, name="user_register.html", context={"error": "Invalid email address", "logo_url": get_logo_url()})
+    if len(password) < 6:
+        return templates.TemplateResponse(request=request, name="user_register.html", context={"error": "Password must be at least 6 characters", "logo_url": get_logo_url()})
+    if password != confirm_password:
+        return templates.TemplateResponse(request=request, name="user_register.html", context={"error": "Passwords do not match", "logo_url": get_logo_url()})
+
+    db = get_db()
+    existing = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+    if existing:
+        db.close()
+        return templates.TemplateResponse(request=request, name="user_register.html", context={"error": "Email already registered", "logo_url": get_logo_url()})
+
+    password_hash = hash_password(password)
+    db.execute("INSERT INTO users (full_name, email, password_hash) VALUES (?, ?, ?)", (full_name, email, password_hash))
+    db.commit()
+    db.close()
+
+    return RedirectResponse(url="/login?registered=1", status_code=303)
+
+
+@app.get("/logout")
+def user_logout():
+    response = RedirectResponse(url="/", status_code=303)
+    response.delete_cookie(USER_SESSION_COOKIE)
+    return response
 
 
 # ─── Admin Auth ──────────────────────────────────────────────────────
@@ -492,11 +587,11 @@ def api_get_logo():
 
 
 @app.post("/api/logo")
-async def api_upload_logo(request: Request, file: UploadFile = File(...)):
+def api_upload_logo(request: Request, file: UploadFile = File(...)):
     require_login(request)
     ext = os.path.splitext(file.filename or "")[1].lower()
     if ext not in ALLOWED_LOGO_EXTENSIONS:
-        return JSONResponse({"error": "Invalid file type. Use PNG, JPG, GIF, SVG, or WEBP."}, status_code=400)
+        return JSONResponse({"error": "Invalid file type. Use PNG, JPG, GIF, or WEBP."}, status_code=400)
 
     # Remove old logo
     if os.path.exists(LOGO_FILE):
