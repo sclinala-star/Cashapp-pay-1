@@ -221,12 +221,29 @@ def seed_data():
 
     # Seed default categories
     default_categories = [
-        ("Categories 1", "#c62828", 1),
-        ("Categories 2", "#1565c0", 2),
-        ("Categories 3", "#2e7d32", 3),
-        ("Categories 4", "#6a1b9a", 4),
-        ("Categories 5", "#e65100", 5),
+        ("W seek M", "#c17d10", 1),
+        ("M seek W", "#8b9a2b", 2),
+        ("M seek M", "#d4a017", 3),
+        ("W seek W", "#7a8450", 4),
+        ("Trans", "#9e9e9e", 5),
     ]
+    # Rename old categories if they exist
+    rename_map = {
+        "Categories 1": "W seek M",
+        "Categories 2": "M seek W",
+        "Categories 3": "M seek M",
+        "Categories 4": "W seek W",
+        "Categories 5": "Trans",
+    }
+    color_map = {
+        "W seek M": "#c17d10",
+        "M seek W": "#8b9a2b",
+        "M seek M": "#d4a017",
+        "W seek W": "#7a8450",
+        "Trans": "#9e9e9e",
+    }
+    for old_name, new_name in rename_map.items():
+        cursor.execute("UPDATE categories SET name = ?, color = ? WHERE name = ?", (new_name, color_map[new_name], old_name))
     for cat_name, cat_color, cat_order in default_categories:
         cursor.execute(
             "INSERT OR IGNORE INTO categories (name, color, sort_order) VALUES (?, ?, ?)",
