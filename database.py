@@ -88,6 +88,15 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            color TEXT DEFAULT '#daa520',
+            sort_order INTEGER DEFAULT 0
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -196,6 +205,20 @@ def seed_data():
                     (city_name, state_id, city_sort),
                 )
                 city_sort += 1
+
+    # Seed default categories
+    default_categories = [
+        ("Categories 1", "#c62828", 1),
+        ("Categories 2", "#1565c0", 2),
+        ("Categories 3", "#2e7d32", 3),
+        ("Categories 4", "#6a1b9a", 4),
+        ("Categories 5", "#e65100", 5),
+    ]
+    for cat_name, cat_color, cat_order in default_categories:
+        cursor.execute(
+            "INSERT OR IGNORE INTO categories (name, color, sort_order) VALUES (?, ?, ?)",
+            (cat_name, cat_color, cat_order),
+        )
 
     conn.commit()
     conn.close()

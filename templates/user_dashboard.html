@@ -115,26 +115,18 @@
                                 <label class="pf-label">I AM:</label>
                                 <select id="post-i-am" class="pf-input">
                                     <option value="">-- Select --</option>
-                                    <option value="Man">Man</option>
-                                    <option value="Woman">Woman</option>
-                                    <option value="Couple (MF)">Couple (MF)</option>
-                                    <option value="Couple (MM)">Couple (MM)</option>
-                                    <option value="Couple (FF)">Couple (FF)</option>
-                                    <option value="Trans">Trans</option>
-                                    <option value="Other">Other</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                             <div class="pf-field">
                                 <label class="pf-label">I SEE:</label>
                                 <select id="post-i-see" class="pf-input">
                                     <option value="">-- Select --</option>
-                                    <option value="Man">Man</option>
-                                    <option value="Woman">Woman</option>
-                                    <option value="Couple (MF)">Couple (MF)</option>
-                                    <option value="Couple (MM)">Couple (MM)</option>
-                                    <option value="Couple (FF)">Couple (FF)</option>
-                                    <option value="Trans">Trans</option>
-                                    <option value="Anyone">Anyone</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -331,8 +323,8 @@
                                     <label class="pf-label">I AM:</label>
                                     <select name="i_am" class="pf-input">
                                         <option value="">-- Select --</option>
-                                        {% for opt in ['Man','Woman','Couple (MF)','Couple (MM)','Couple (FF)','Trans','Other'] %}
-                                        <option value="{{ opt }}" {{ 'selected' if p.i_am == opt }}>{{ opt }}</option>
+                                        {% for cat in categories %}
+                                        <option value="{{ cat.name }}" {{ 'selected' if p.i_am == cat.name }}>{{ cat.name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -340,8 +332,8 @@
                                     <label class="pf-label">I SEE:</label>
                                     <select name="i_see" class="pf-input">
                                         <option value="">-- Select --</option>
-                                        {% for opt in ['Man','Woman','Couple (MF)','Couple (MM)','Couple (FF)','Trans','Anyone'] %}
-                                        <option value="{{ opt }}" {{ 'selected' if p.i_see == opt }}>{{ opt }}</option>
+                                        {% for cat in categories %}
+                                        <option value="{{ cat.name }}" {{ 'selected' if p.i_see == cat.name }}>{{ cat.name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>

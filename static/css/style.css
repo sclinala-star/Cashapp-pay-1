@@ -1474,6 +1474,74 @@ a:hover {
     text-decoration: underline;
 }
 
+.city-categories {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.cat-btn {
+    display: inline-block;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--cat-color), color-mix(in srgb, var(--cat-color) 70%, #000));
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.cat-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+.cat-btn:hover::before {
+    opacity: 1;
+}
+
+.cat-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.cat-btn-1 { background: linear-gradient(135deg, #c62828, #e53935); }
+.cat-btn-2 { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+.cat-btn-3 { background: linear-gradient(135deg, #2e7d32, #66bb6a); }
+.cat-btn-4 { background: linear-gradient(135deg, #6a1b9a, #ab47bc); }
+.cat-btn-5 { background: linear-gradient(135deg, #e65100, #ff9800); }
+
+@keyframes catShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.cat-btn::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    background-size: 200% 100%;
+    animation: catShimmer 3s infinite;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
 .city-page-container {
     max-width: 1000px;
     margin: 30px auto;

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadLocations();
     loadMenuItems();
     loadLogo();
+    loadCategories();
 });
 
 // ─── Sidebar Navigation ─────────────────────────────────────────
@@ -488,6 +489,103 @@ function showToast(message, type) {
     setTimeout(() => {
         toast.classList.add("hidden");
     }, 3000);
+}
+
+// ─── Categories ─────────────────────────────────────────────────
+
+let categoryData = [];
+
+async function loadCategories() {
+    const res = await fetch("/api/categories");
+    categoryData = await res.json();
+    renderCategoriesList();
+}
+
+function renderCategoriesList() {
+    const container = document.getElementById("categories-list");
+    if (!container) return;
+    if (categoryData.length === 0) {
+        container.innerHTML = '<p class="empty-msg">No categories added yet.</p>';
+        return;
+    }
+
+    let html = '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>Color</th><th>Actions</th></tr></thead><tbody>';
+    categoryData.forEach((c, i) => {
+        html += `<tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(c.name)}</td>
+            <td><span style="display:inline-block;width:30px;height:20px;border-radius:4px;background:${escapeHtmlAttr(c.color)};vertical-align:middle;"></span> ${escapeHtml(c.color)}</td>
+            <td class="table-actions">
+                <button class="btn btn-edit btn-sm" onclick="editCategory(${c.id}, '${escapeAttr(c.name)}', '${escapeAttr(c.color)}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCategory(${c.id}, '${escapeAttr(c.name)}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+async function addCategory() {
+    const nameInput = document.getElementById("cat-name-input");
+    const colorInput = document.getElementById("cat-color-input");
+    const name = nameInput.value.trim();
+    const color = colorInput.value;
+
+    if (!name) return showToast("Please enter a category name", "error");
+
+    const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, color }),
+    });
+
+    if (res.ok) {
+        nameInput.value = "";
+        showToast("Category added successfully", "success");
+        loadCategories();
+    } else {
+        const data = await res.json();
+        showToast(data.error || "Failed to add category", "error");
+    }
+}
+
+function editCategory(id, currentName, currentColor) {
+    openModal("Edit Category", currentName, async (newName) => {
+        const colorInput = document.getElementById("modal-color-input");
+        const newColor = colorInput ? colorInput.value : currentColor;
+        const res = await fetch(`/api/categories/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: newName, color: newColor }),
+        });
+        if (res.ok) {
+            showToast("Category updated", "success");
+            loadCategories();
+        }
+    });
+    // Add color picker to modal
+    setTimeout(() => {
+        let colorField = document.getElementById("modal-color-input");
+        if (!colorField) {
+            colorField = document.createElement("input");
+            colorField.type = "color";
+            colorField.id = "modal-color-input";
+            colorField.style.cssText = "width:50px;height:36px;border:none;cursor:pointer;margin-top:8px;";
+            document.getElementById("modal-input").parentNode.appendChild(colorField);
+        }
+        colorField.value = currentColor;
+        colorField.style.display = "block";
+    }, 50);
+}
+
+async function deleteCategory(id, name) {
+    if (!confirm(`Delete category "${name}"?`)) return;
+
+    const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+    if (res.ok) {
+        showToast("Category deleted", "success");
+        loadCategories();
+    }
 }
 
 function escapeHtml(str) {

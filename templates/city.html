@@ -50,6 +50,16 @@
         <h2 class="city-page-title">{{ city_name }}</h2>
         <p class="city-page-subtitle">Classified Ads in {{ city_name }}</p>
 
+        {% if categories %}
+        <div class="city-categories">
+            {% for cat in categories %}
+            <a href="/city/{{ city_name | urlencode }}?cat={{ cat.name | urlencode }}" class="cat-btn cat-btn-{{ loop.index }}" style="--cat-color: {{ cat.color }};">
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% if posts %}
         <div class="city-posts-grid">
             {% for post in posts %}

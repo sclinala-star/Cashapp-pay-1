@@ -55,6 +55,11 @@
             <span>Website Logo</span>
         </a>
 
+        <a href="#" class="sidebar-link" data-page="categories" onclick="showPage('categories', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#128195;</span>
+            <span>Categories</span>
+        </a>
+
         <div class="sidebar-bottom">
             <a href="/" class="sidebar-link"><span class="sidebar-icon">&#127968;</span> View Site</a>
             <a href="/admin/logout" class="sidebar-link"><span class="sidebar-icon">&#128682;</span> Logout</a>
@@ -143,6 +148,26 @@
                     <button class="btn btn-primary" onclick="uploadLogo()">Upload Logo</button>
                     <button class="btn btn-danger" onclick="deleteLogo()">Delete Logo</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Categories Page -->
+        <div id="page-categories" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage Categories</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Add categories that appear on city pages. Each category gets a colored button.</p>
+            </div>
+            <div class="admin-card">
+                <h3>Add New Category</h3>
+                <div class="inline-form">
+                    <input type="text" id="cat-name-input" placeholder="Category Name">
+                    <input type="color" id="cat-color-input" value="#daa520" style="width:50px;height:36px;border:none;cursor:pointer;">
+                    <button class="btn btn-primary" onclick="addCategory()">Add</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>All Categories</h3>
+                <div id="categories-list" class="data-table-wrap"></div>
             </div>
         </div>
 

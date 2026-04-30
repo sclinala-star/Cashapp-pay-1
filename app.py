@@ -23,7 +23,7 @@ app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), na
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-SECRET_KEY = "change-this-in-production-classified-secret-key"
+SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-in-production-classified-secret-key")
 serializer = URLSafeSerializer(SECRET_KEY)
 
 ADMIN_USERNAME = "admin"
@@ -143,9 +143,10 @@ def city_page(request: Request, city_name: str):
     from urllib.parse import unquote
     city_name = unquote(city_name)
     db = get_db()
+    escaped_name = city_name.replace('%', '\\%').replace('_', '\\_')
     posts = db.execute(
-        "SELECT * FROM posts WHERE city LIKE ? AND status = 'active' ORDER BY created_at DESC",
-        (f"%{city_name}%",)
+        "SELECT * FROM posts WHERE city LIKE ? ESCAPE '\\' AND status = 'active' ORDER BY created_at DESC",
+        (f"%{escaped_name}%",)
     ).fetchall()
     post_list = [dict(p) for p in posts]
     menu_items = db.execute("SELECT * FROM menu_items ORDER BY sort_order, name").fetchall()
@@ -154,9 +155,11 @@ def city_page(request: Request, city_name: str):
     city_row = db.execute("SELECT c.name as city_name, s.name as state_name, co.name as country_name FROM cities c JOIN states s ON c.state_id = s.id JOIN countries co ON s.country_id = co.id WHERE c.name = ?", (city_name,)).fetchone()
     country_name = city_row["country_name"] if city_row else ""
     state_name = city_row["state_name"] if city_row else ""
+    categories = db.execute("SELECT * FROM categories ORDER BY sort_order, name").fetchall()
+    cat_list = [{"id": c["id"], "name": c["name"], "color": c["color"]} for c in categories]
     db.close()
     logo_url = get_logo_url()
-    return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url, "menu_items": menu_list, "country_name": country_name, "state_name": state_name})
+    return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url, "menu_items": menu_list, "country_name": country_name, "state_name": state_name, "categories": cat_list})
 
 
 # ─── User Auth ───────────────────────────────────────────────────────
@@ -232,8 +235,10 @@ def user_dashboard(request: Request):
     posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC", (user["user_id"],)).fetchall()
     post_list = [{"id": p["id"], "i_am": p["i_am"], "i_see": p["i_see"], "name_alias": p["name_alias"], "age": p["age"], "headline": p["headline"], "body": p["body"], "city": p["city"], "phone_code": p["phone_code"], "phone": p["phone"], "location_area": p["location_area"], "status": p["status"], "repost_count": p["repost_count"], "created_at": p["created_at"], "updated_at": p["updated_at"]} for p in posts]
     active_count = sum(1 for p in post_list if p["status"] == "active")
+    categories = db.execute("SELECT * FROM categories ORDER BY sort_order, name").fetchall()
+    cat_list = [{"id": c["id"], "name": c["name"], "color": c["color"]} for c in categories]
     db.close()
-    return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date, "balance": balance, "posts": post_list, "active_count": active_count})
+    return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date, "balance": balance, "posts": post_list, "active_count": active_count, "categories": cat_list})
 
 
 # ─── API: User Posts ─────────────────────────────────────────────────
@@ -310,8 +315,8 @@ def api_update_post(request: Request, post_id: int, data: PostUpdate):
     i_see = data.i_see.strip() if data.i_see is not None else post["i_see"]
     name_alias = data.name_alias.strip() if data.name_alias is not None else post["name_alias"]
     age = data.age.strip() if data.age is not None else post["age"]
-    headline = data.headline.strip() if data.headline else post["headline"]
-    body = data.body.strip() if data.body else post["body"]
+    headline = data.headline.strip() if data.headline is not None else post["headline"]
+    body = data.body.strip() if data.body is not None else post["body"]
     city = data.city.strip() if data.city is not None else post["city"]
     phone_code = data.phone_code.strip() if data.phone_code is not None else post["phone_code"]
     phone = data.phone.strip() if data.phone is not None else post["phone"]
@@ -465,6 +470,14 @@ class MenuItemCreate(BaseModel):
 class MenuItemUpdate(BaseModel):
     name: Optional[str] = None
     url: Optional[str] = None
+
+class CategoryCreate(BaseModel):
+    name: str
+    color: str = "#daa520"
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    color: Optional[str] = None
 
 
 # ─── API: Countries ──────────────────────────────────────────────────
@@ -766,6 +779,59 @@ def api_delete_menu_item(request: Request, item_id: int):
     require_login(request)
     db = get_db()
     db.execute("DELETE FROM menu_items WHERE id = ?", (item_id,))
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+# ─── API: Categories ─────────────────────────────────────────────────
+
+@app.get("/api/categories")
+def api_get_categories():
+    db = get_db()
+    items = db.execute("SELECT * FROM categories ORDER BY sort_order, name").fetchall()
+    db.close()
+    return [{"id": c["id"], "name": c["name"], "color": c["color"]} for c in items]
+
+@app.post("/api/categories", status_code=201)
+def api_add_category(request: Request, data: CategoryCreate):
+    require_login(request)
+    name = data.name.strip()
+    if not name:
+        return JSONResponse({"error": "Name required"}, status_code=400)
+    db = get_db()
+    try:
+        max_order = db.execute("SELECT MAX(sort_order) FROM categories").fetchone()[0]
+        sort_order = (max_order or 0) + 1
+        cursor = db.execute("INSERT INTO categories (name, color, sort_order) VALUES (?, ?, ?)", (name, data.color.strip(), sort_order))
+        db.commit()
+        cat_id = cursor.lastrowid
+        db.close()
+        return {"id": cat_id, "name": name, "color": data.color.strip()}
+    except Exception:
+        db.close()
+        return JSONResponse({"error": "Category already exists"}, status_code=400)
+
+@app.put("/api/categories/{cat_id}")
+def api_update_category(request: Request, cat_id: int, data: CategoryUpdate):
+    require_login(request)
+    db = get_db()
+    cat = db.execute("SELECT * FROM categories WHERE id = ?", (cat_id,)).fetchone()
+    if not cat:
+        db.close()
+        raise HTTPException(status_code=404, detail="Category not found")
+    name = (data.name.strip() if data.name else cat["name"])
+    color = (data.color.strip() if data.color else cat["color"])
+    db.execute("UPDATE categories SET name = ?, color = ? WHERE id = ?", (name, color, cat_id))
+    db.commit()
+    db.close()
+    return {"id": cat_id, "name": name, "color": color}
+
+@app.delete("/api/categories/{cat_id}")
+def api_delete_category(request: Request, cat_id: int):
+    require_login(request)
+    db = get_db()
+    db.execute("DELETE FROM categories WHERE id = ?", (cat_id,))
     db.commit()
     db.close()
     return {"success": True}
