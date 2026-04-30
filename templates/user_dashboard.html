@@ -506,55 +506,56 @@
             });
         }
         // Location Picker - load countries from DB
-        async function loadPostCountries() {
-            const res = await fetch('/api/countries');
-            const countries = await res.json();
-            const sel = document.getElementById('post-country');
-            if (!sel) return;
-            sel.innerHTML = '<option value="">--- Select Country ---</option>';
-            countries.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.textContent = c.name;
-                sel.appendChild(opt);
-            });
-        }
-        async function loadPostStates() {
-            const countryId = document.getElementById('post-country').value;
-            const stateSel = document.getElementById('post-state');
-            const citySel = document.getElementById('post-city-select');
-            const cityHidden = document.getElementById('post-city');
-            stateSel.innerHTML = '<option value="">--- Select State ---</option>';
-            citySel.innerHTML = '<option value="">--- Select City ---</option>';
-            cityHidden.value = '';
-            if (!countryId) return;
-            const res = await fetch('/api/states/' + countryId);
-            const states = await res.json();
-            states.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.textContent = s.name;
-                stateSel.appendChild(opt);
-            });
-        }
-        async function loadPostCities() {
-            const stateId = document.getElementById('post-state').value;
-            const citySel = document.getElementById('post-city-select');
-            const cityHidden = document.getElementById('post-city');
-            citySel.innerHTML = '<option value="">--- Select City ---</option>';
-            cityHidden.value = '';
-            if (!stateId) return;
-            const res = await fetch('/api/cities/' + stateId);
-            const cities = await res.json();
-            cities.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.name;
-                opt.textContent = c.name;
-                citySel.appendChild(opt);
-            });
-        }
         loadPostCountries();
     });
+
+    async function loadPostCountries() {
+        const res = await fetch('/api/countries');
+        const countries = await res.json();
+        const sel = document.getElementById('post-country');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">--- Select Country ---</option>';
+        countries.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            sel.appendChild(opt);
+        });
+    }
+    async function loadPostStates() {
+        const countryId = document.getElementById('post-country').value;
+        const stateSel = document.getElementById('post-state');
+        const citySel = document.getElementById('post-city-select');
+        const cityHidden = document.getElementById('post-city');
+        stateSel.innerHTML = '<option value="">--- Select State ---</option>';
+        citySel.innerHTML = '<option value="">--- Select City ---</option>';
+        cityHidden.value = '';
+        if (!countryId) return;
+        const res = await fetch('/api/states/' + countryId);
+        const states = await res.json();
+        states.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = s.name;
+            stateSel.appendChild(opt);
+        });
+    }
+    async function loadPostCities() {
+        const stateId = document.getElementById('post-state').value;
+        const citySel = document.getElementById('post-city-select');
+        const cityHidden = document.getElementById('post-city');
+        citySel.innerHTML = '<option value="">--- Select City ---</option>';
+        cityHidden.value = '';
+        if (!stateId) return;
+        const res = await fetch('/api/cities/' + stateId);
+        const cities = await res.json();
+        cities.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.name;
+            opt.textContent = c.name;
+            citySel.appendChild(opt);
+        });
+    }
     </script>
 </body>
 </html>
