@@ -61,6 +61,8 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, stored: str) -> bool:
+    if ":" not in stored:
+        return False
     salt, hashed = stored.split(":", 1)
     return hashlib.sha256((salt + password).encode()).hexdigest() == hashed
 
@@ -222,16 +224,20 @@ def user_login_page(request: Request):
 @app.post("/login")
 def user_login(request: Request, email: str = Form(...), password: str = Form(...)):
     db = get_db()
-    user = db.execute("SELECT * FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
+    clean_email = email.strip().lower()
+    user = db.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
     db.close()
 
-    if user and verify_password(password, user["password_hash"]):
-        token = serializer.dumps({"user_id": user["id"], "full_name": user["full_name"], "email": user["email"]})
-        response = RedirectResponse(url="/user", status_code=303)
-        response.set_cookie(USER_SESSION_COOKIE, token, httponly=True, max_age=86400)
-        return response
+    if not user:
+        return templates.TemplateResponse(request=request, name="user_login.html", context={"error": "No account found with this email. Please register first.", "logo_url": get_logo_url()})
 
-    return templates.TemplateResponse(request=request, name="user_login.html", context={"error": "Invalid email or password", "logo_url": get_logo_url()})
+    if not verify_password(password, user["password_hash"]):
+        return templates.TemplateResponse(request=request, name="user_login.html", context={"error": "Incorrect password. Please try again.", "logo_url": get_logo_url()})
+
+    token = serializer.dumps({"user_id": user["id"], "full_name": user["full_name"], "email": user["email"]})
+    response = RedirectResponse(url="/user", status_code=303)
+    response.set_cookie(USER_SESSION_COOKIE, token, httponly=True, max_age=86400)
+    return response
 
 
 @app.get("/register", response_class=HTMLResponse)
