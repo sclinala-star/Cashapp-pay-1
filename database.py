@@ -226,27 +226,19 @@ def seed_data():
                 )
                 city_sort += 1
 
-    # Seed default categories (original colors: red, blue, green, purple, orange)
+    # Seed default categories (only if none exist)
     default_categories = [
-        ("W seek M", "#c62828", 1),
-        ("M seek W", "#1565c0", 2),
-        ("M seek M", "#2e7d32", 3),
-        ("W seek W", "#6a1b9a", 4),
-        ("Trans", "#e65100", 5),
+        ("Categories 1", "#c62828", 1),
+        ("Categories 2", "#1565c0", 2),
+        ("Categories 3", "#2e7d32", 3),
+        ("Categories 4", "#6a1b9a", 4),
+        ("Categories 5", "#e65100", 5),
     ]
-    # Rename old categories if they exist, keep original colors
-    rename_map = {
-        "Categories 1": ("W seek M", "#c62828"),
-        "Categories 2": ("M seek W", "#1565c0"),
-        "Categories 3": ("M seek M", "#2e7d32"),
-        "Categories 4": ("W seek W", "#6a1b9a"),
-        "Categories 5": ("Trans", "#e65100"),
-    }
-    for old_name, (new_name, color) in rename_map.items():
-        cursor.execute("UPDATE categories SET name = ?, color = ? WHERE name = ?", (new_name, color, old_name))
-    # Also revert colors if they were changed
-    for new_name, color in [("W seek M", "#c62828"), ("M seek W", "#1565c0"), ("M seek M", "#2e7d32"), ("W seek W", "#6a1b9a"), ("Trans", "#e65100")]:
-        cursor.execute("UPDATE categories SET color = ? WHERE name = ?", (color, new_name))
+    cat_count = cursor.execute("SELECT COUNT(*) FROM categories").fetchone()[0]
+    if cat_count > 0:
+        conn.commit()
+        conn.close()
+        return
     for cat_name, cat_color, cat_order in default_categories:
         cursor.execute(
             "INSERT OR IGNORE INTO categories (name, color, sort_order) VALUES (?, ?, ?)",
