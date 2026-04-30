@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ city_name }} - Classified Ads</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
+            <nav class="header-nav">
+                <a href="/" class="golden-btn">Home</a>
+                <a href="/login" class="golden-btn">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="city-breadcrumb-bar">
+        <div class="city-breadcrumb">
+            <a href="/" class="bc-link">HOME</a>
+            <span class="bc-sep">›</span>
+            {% if country_name %}
+            <a href="/" class="bc-link">{{ country_name }}</a>
+            <span class="bc-sep">›</span>
+            {% endif %}
+            {% if state_name %}
+            <span class="bc-link">{{ state_name }}</span>
+            <span class="bc-sep">›</span>
+            {% endif %}
+            <span class="bc-current">{{ city_name }}</span>
+        </div>
+        {% if menu_items %}
+        <div class="city-menu-links">
+            {% for item in menu_items %}
+            <a href="{{ item.url }}" class="city-menu-link" target="_blank">{{ item.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <main class="city-page-container">
+        <h2 class="city-page-title">{{ city_name }}</h2>
+        <p class="city-page-subtitle">Classified Ads in {{ city_name }}</p>
+
+        {% if categories %}
+        <div class="city-categories">
+            {% for cat in categories %}
+            <a href="/{{ country_name | urlencode }}/{{ state_name | urlencode }}/{{ city_name | urlencode }}/{{ cat.name | urlencode }}/viewads" class="cat-btn cat-btn-{{ loop.index }}" style="--cat-color: {{ cat.color }};">
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+
+
+
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Classified Ads. All rights reserved.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ current_cat }} - {{ city_name }} - Classified Ads</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .viewads-layout {
+            display: grid;
+            grid-template-columns: 180px 1fr 180px;
+            gap: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            min-height: 70vh;
+        }
+        .banner-col {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 10px;
+        }
+        .banner-slot {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .banner-slot:hover {
+            border-color: #daa520;
+            box-shadow: 0 2px 10px rgba(218,165,32,0.15);
+        }
+        .banner-slot img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+        .banner-slot .banner-title {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+        .banner-placeholder {
+            color: #bbb;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .banner-placeholder-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            opacity: 0.4;
+        }
+        .viewads-center {
+            min-width: 0;
+        }
+        .viewads-center .city-page-title {
+            margin-top: 0;
+        }
+        .viewads-center .city-posts-grid {
+            grid-template-columns: 1fr !important;
+        }
+        @media (max-width: 900px) {
+            .viewads-layout {
+                grid-template-columns: 1fr;
+            }
+            .banner-col { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
+            <nav class="header-nav">
+                <a href="/" class="golden-btn">Home</a>
+                <a href="/login" class="golden-btn">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="city-breadcrumb-bar">
+        <div class="city-breadcrumb">
+            <a href="/" class="bc-link">HOME</a>
+            <span class="bc-sep">›</span>
+            <a href="/" class="bc-link">{{ country_name }}</a>
+            <span class="bc-sep">›</span>
+            <span class="bc-link">{{ state_name }}</span>
+            <span class="bc-sep">›</span>
+            <a href="/city/{{ city_name | urlencode }}" class="bc-link">{{ city_name }}</a>
+            <span class="bc-sep">›</span>
+            <span class="bc-current">{{ current_cat }}</span>
+        </div>
+    </div>
+
+    <div class="viewads-layout">
+        <!-- Left Banner Column -->
+        <div class="banner-col">
+            {% if left_banners %}
+                {% for b in left_banners %}
+                <a href="{{ b.link_url or '#' }}" class="banner-slot" target="_blank" style="border-style:solid;border-color:#daa520;">
+                    {% if b.image_url %}
+                    <img src="{{ b.image_url }}" alt="{{ b.title }}">
+                    {% endif %}
+                    {% if b.title %}
+                    <div class="banner-title">{{ b.title }}</div>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="banner-slot">
+                    <div class="banner-placeholder-icon">📢</div>
+                    <div class="banner-placeholder">Ad Space</div>
+                </div>
+                <div class="banner-slot">
+                    <div class="banner-placeholder-icon">🎯</div>
+                    <div class="banner-placeholder">Ad Space</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Center: Posts -->
+        <div class="viewads-center">
+            <h2 class="city-page-title">{{ current_cat }}</h2>
+            <p class="city-page-subtitle">{{ city_name }}, {{ state_name }}, {{ country_name }}</p>
+
+            {% if posts %}
+            <div class="city-posts-grid">
+                {% for post in posts %}
+                <a href="/ad/{{ post.id }}" class="city-post-card-link">
+                    <div class="city-post-card">
+                        <div class="city-post-header">
+                            <span class="city-post-badge">{{ post.i_am }} → {{ post.i_see }}</span>
+                            {% if post.age %}<span class="city-post-age">Age: {{ post.age }}</span>{% endif %}
+                        </div>
+                        <h3 class="city-post-headline">{{ post.headline }}</h3>
+                        <p class="city-post-body">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</p>
+                        <div class="city-post-footer">
+                            {% if post.name_alias %}<span>{{ post.name_alias }}</span>{% endif %}
+                            <span>📍 {{ post.city }}</span>
+                            <span class="city-post-date">{{ post.created_at }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="city-no-posts">
+                <p>No ads posted in {{ current_cat }} for {{ city_name }} yet.</p>
+                <a href="/register" class="golden-btn">Post an Ad</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Banner Column -->
+        <div class="banner-col">
+            {% if right_banners %}
+                {% for b in right_banners %}
+                <a href="{{ b.link_url or '#' }}" class="banner-slot" target="_blank" style="border-style:solid;border-color:#daa520;">
+                    {% if b.image_url %}
+                    <img src="{{ b.image_url }}" alt="{{ b.title }}">
+                    {% endif %}
+                    {% if b.title %}
+                    <div class="banner-title">{{ b.title }}</div>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="banner-slot">
+                    <div class="banner-placeholder-icon">💎</div>
+                    <div class="banner-placeholder">Ad Space</div>
+                </div>
+                <div class="banner-slot">
+                    <div class="banner-placeholder-icon">⭐</div>
+                    <div class="banner-placeholder">Ad Space</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Classified Ads. All rights reserved.</p>
+    </footer>
+</body>
+</html>

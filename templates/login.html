@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <h1 class="site-title">Classified</h1>
+            <nav class="header-nav">
+                <a href="/">Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="login-container">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            {% if error %}
+            <div class="error-msg">{{ error }}</div>
+            {% endif %}
+            <form method="POST" action="/admin/login">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

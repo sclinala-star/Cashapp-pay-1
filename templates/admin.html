@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .design-group { background: #f9f9f9; border-radius: 10px; padding: 16px; border: 1px solid #eee; }
+        .design-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+        .design-row label { font-size: 0.9rem; color: #555; }
+        .design-color { width: 50px; height: 34px; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; padding: 0; }
+        .design-color:hover { border-color: #daa520; }
+    </style>
+</head>
+<body class="admin-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="sidebar-logo">&#9881;</span>
+            <span class="sidebar-title">Admin Panel</span>
+        </div>
+
+        <div class="sidebar-section-label">&#8212; COUNTRIES &amp; CITIES</div>
+
+        <div class="sidebar-dropdown">
+            <div class="sidebar-dropdown-toggle" onclick="toggleDropdown(this)">
+                <span class="sidebar-icon">&#127760;</span>
+                <span>Countries</span>
+                <span class="sidebar-chevron">&#9662;</span>
+            </div>
+            <div class="sidebar-dropdown-menu open">
+                <a href="#" class="sidebar-link active" data-page="countries" onclick="showPage('countries', this)">
+                    <span class="sidebar-dot"></span> Countries
+                </a>
+                <a href="#" class="sidebar-link" data-page="states" onclick="showPage('states', this)">
+                    <span class="sidebar-dot"></span> States
+                </a>
+                <a href="#" class="sidebar-link" data-page="cities" onclick="showPage('cities', this)">
+                    <span class="sidebar-dot filled"></span> Cities
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-section-label">&#8212; SITE SETTINGS</div>
+
+        <div class="sidebar-dropdown">
+            <div class="sidebar-dropdown-toggle" onclick="toggleDropdown(this)">
+                <span class="sidebar-icon">&#9776;</span>
+                <span>Menu</span>
+                <span class="sidebar-chevron">&#9662;</span>
+            </div>
+            <div class="sidebar-dropdown-menu">
+                <a href="#" class="sidebar-link" data-page="menu-items" onclick="showPage('menu-items', this)">
+                    <span class="sidebar-dot"></span> Menu Items
+                </a>
+            </div>
+        </div>
+
+        <a href="#" class="sidebar-link" data-page="logo" onclick="showPage('logo', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#128247;</span>
+            <span>Website Logo</span>
+        </a>
+
+        <a href="#" class="sidebar-link" data-page="categories" onclick="showPage('categories', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#128195;</span>
+            <span>Categories</span>
+        </a>
+
+        <a href="#" class="sidebar-link" data-page="page-design" onclick="showPage('page-design', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#127912;</span>
+            <span>Page Design</span>
+        </a>
+
+        <a href="#" class="sidebar-link" data-page="banners" onclick="showPage('banners', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#128444;</span>
+            <span>Ad Banners</span>
+        </a>
+
+        <div class="sidebar-section-label">&#8212; USER MANAGEMENT</div>
+
+        <a href="#" class="sidebar-link" data-page="users" onclick="showPage('users', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#128101;</span>
+            <span>Users</span>
+        </a>
+
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-link"><span class="sidebar-icon">&#127968;</span> View Site</a>
+            <a href="/admin/logout" class="sidebar-link"><span class="sidebar-icon">&#128682;</span> Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <h1 class="admin-topbar-title">Classified - Admin</h1>
+        </header>
+
+        <!-- Countries Page -->
+        <div id="page-countries" class="admin-page active">
+            <div class="admin-page-header">
+                <h2>Manage Countries</h2>
+            </div>
+            <div class="admin-card">
+                <h3>Add New Country</h3>
+                <div class="inline-form">
+                    <input type="text" id="new-country-name" placeholder="Country name">
+                    <button class="btn btn-primary" onclick="addCountry()">Add Country</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>All Countries</h3>
+                <div id="countries-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- States Page -->
+        <div id="page-states" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage States</h2>
+            </div>
+            <div class="admin-card">
+                <h3>Add New State</h3>
+                <div class="inline-form">
+                    <select id="state-country-select">
+                        <option value="">Select Country</option>
+                    </select>
+                    <input type="text" id="new-state-name" placeholder="State name">
+                    <button class="btn btn-primary" onclick="addState()">Add State</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>All States</h3>
+                <div id="states-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Menu Items Page -->
+        <div id="page-menu-items" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage Menu Items</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Add menu buttons that appear in the site header. Set a name and URL for each.</p>
+            </div>
+            <div class="admin-card">
+                <h3>Add New Menu Item</h3>
+                <div class="inline-form">
+                    <input type="text" id="new-menu-name" placeholder="Menu name (e.g. About Us)">
+                    <input type="text" id="new-menu-url" placeholder="URL (e.g. https://example.com)">
+                    <button class="btn btn-primary" onclick="addMenuItem()">Add Menu Item</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>All Menu Items</h3>
+                <div id="menu-items-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Logo Page -->
+        <div id="page-logo" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Website Logo</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Upload a logo to replace the "Classified" text in the site header. Recommended: PNG with transparent background.</p>
+            </div>
+            <div class="admin-card">
+                <h3>Current Logo</h3>
+                <div id="logo-preview" style="margin:15px 0;min-height:60px;">
+                    <p class="empty-msg">Loading...</p>
+                </div>
+                <div class="inline-form" style="gap:10px;">
+                    <input type="file" id="logo-file-input" accept="image/*" style="flex:1;">
+                    <button class="btn btn-primary" onclick="uploadLogo()">Upload Logo</button>
+                    <button class="btn btn-danger" onclick="deleteLogo()">Delete Logo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Page -->
+        <div id="page-categories" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage Categories</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Add categories that appear on city pages. Each category gets a colored button.</p>
+            </div>
+            <div class="admin-card">
+                <h3>Add New Category</h3>
+                <div class="inline-form">
+                    <input type="text" id="cat-name-input" placeholder="Category Name">
+                    <input type="color" id="cat-color-input" value="#daa520" style="width:50px;height:36px;border:none;cursor:pointer;">
+                    <button class="btn btn-primary" onclick="addCategory()">Add</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>All Categories</h3>
+                <div id="categories-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Cities Page -->
+        <div id="page-cities" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage Cities</h2>
+            </div>
+            <div class="admin-card">
+                <h3>Add New City</h3>
+                <div class="inline-form">
+                    <select id="city-country-select" onchange="loadStatesForCity()">
+                        <option value="">Select Country</option>
+                    </select>
+                    <select id="city-state-select">
+                        <option value="">Select State</option>
+                    </select>
+                    <input type="text" id="new-city-name" placeholder="City name">
+                    <button class="btn btn-primary" onclick="addCity()">Add City</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>All Cities</h3>
+                <div id="cities-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Ad Banners -->
+        <div id="page-banners" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Ad Banners</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Manage left and right banner ads on viewads pages.</p>
+            </div>
+            <div class="admin-card">
+                <h3>Add New Banner</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Position</label>
+                        <select id="banner-position" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;">
+                            <option value="left">Left Side</option>
+                            <option value="right">Right Side</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Title</label>
+                        <input type="text" id="banner-title" placeholder="Banner title" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Image URL</label>
+                        <input type="text" id="banner-image" placeholder="https://example.com/banner.jpg" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Link URL</label>
+                        <input type="text" id="banner-link" placeholder="https://example.com" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addBanner()">Add Banner</button>
+            </div>
+            <div class="admin-card" style="margin-top:16px;">
+                <h3>Current Banners</h3>
+                <div id="banners-list"></div>
+            </div>
+        </div>
+
+        <!-- Page Design -->
+        <div id="page-page-design" class="admin-page">
+            <div class="admin-page-header">
+                <h2>User Page Design</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Customize colors and styles for the user dashboard. Changes apply instantly.</p>
+            </div>
+            <div class="admin-card">
+                <div style="display:flex;gap:10px;margin-bottom:20px;">
+                    <button class="btn btn-primary" onclick="saveDesign()">Save Design</button>
+                    <button class="btn btn-danger" onclick="resetDesign()">Reset to Default</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #daa520;padding-bottom:6px;">Sidebar</h4>
+                        <div class="design-row"><label>Background</label><input type="color" id="ds-sidebar_bg" class="design-color"></div>
+                        <div class="design-row"><label>Text Color</label><input type="color" id="ds-sidebar_text" class="design-color"></div>
+                        <div class="design-row"><label>Active Item BG</label><input type="color" id="ds-sidebar_active_bg" class="design-color"></div>
+                        <div class="design-row"><label>Active Item Text</label><input type="color" id="ds-sidebar_active_text" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #2196f3;padding-bottom:6px;">Header</h4>
+                        <div class="design-row"><label>Background</label><input type="color" id="ds-header_bg" class="design-color"></div>
+                        <div class="design-row"><label>Text Color</label><input type="color" id="ds-header_text" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #4caf50;padding-bottom:6px;">Page</h4>
+                        <div class="design-row"><label>Page Background</label><input type="color" id="ds-page_bg" class="design-color"></div>
+                        <div class="design-row"><label>Card Background</label><input type="color" id="ds-card_bg" class="design-color"></div>
+                        <div class="design-row"><label>Card Text</label><input type="color" id="ds-card_text" class="design-color"></div>
+                        <div class="design-row"><label>Accent Color</label><input type="color" id="ds-accent_color" class="design-color"></div>
+                        <div class="design-row"><label>Link Color</label><input type="color" id="ds-link_color" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #e91e63;padding-bottom:6px;">Buttons</h4>
+                        <div class="design-row"><label>Primary BG</label><input type="color" id="ds-btn_primary_bg" class="design-color"></div>
+                        <div class="design-row"><label>Primary Text</label><input type="color" id="ds-btn_primary_text" class="design-color"></div>
+                        <div class="design-row"><label>Danger BG</label><input type="color" id="ds-btn_danger_bg" class="design-color"></div>
+                        <div class="design-row"><label>Danger Text</label><input type="color" id="ds-btn_danger_text" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #ff9800;padding-bottom:6px;">Stats Cards</h4>
+                        <div class="design-row"><label>Color 1 (Balance)</label><input type="color" id="ds-stats_color1" class="design-color"></div>
+                        <div class="design-row"><label>Color 2 (Active)</label><input type="color" id="ds-stats_color2" class="design-color"></div>
+                        <div class="design-row"><label>Color 3 (Total)</label><input type="color" id="ds-stats_color3" class="design-color"></div>
+                        <div class="design-row"><label>Color 4 (Reposts)</label><input type="color" id="ds-stats_color4" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #9c27b0;padding-bottom:6px;">Table</h4>
+                        <div class="design-row"><label>Header BG</label><input type="color" id="ds-table_header_bg" class="design-color"></div>
+                        <div class="design-row"><label>Border Color</label><input type="color" id="ds-table_border" class="design-color"></div>
+                    </div>
+                </div>
+                <div style="margin-top:16px;">
+                    <h4 style="margin:0 0 10px;color:#333;">Font Family</h4>
+                    <select id="ds-font_family" style="width:100%;max-width:400px;padding:8px;border:1px solid #ddd;border-radius:6px;">
+                        <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI (Default)</option>
+                        <option value="'Arial', Helvetica, sans-serif">Arial</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="Georgia, 'Times New Roman', serif">Georgia (Serif)</option>
+                    </select>
+                </div>
+                <div style="margin-top:20px;display:flex;gap:10px;">
+                    <button class="btn btn-primary" onclick="saveDesign()">Save Design</button>
+                    <button class="btn btn-secondary" onclick="previewDesign()">Preview (Open User Page)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Page -->
+        <div id="page-users" class="admin-page">
+            <div class="admin-page-header">
+                <h2>User Management</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Monitor all registered users, their balance, and post activity.</p>
+            </div>
+            <div class="admin-card">
+                <h3>All Users</h3>
+                <div id="users-list" class="data-table-wrap">
+                    <p class="empty-msg">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Detail Page -->
+        <div id="page-user-detail" class="admin-page">
+            <div class="admin-page-header">
+                <h2 id="user-detail-title">User Posts</h2>
+                <button class="btn btn-secondary" onclick="showPage('users', document.querySelector('[data-page=users]'))" style="margin-top:8px;">&#8592; Back to Users</button>
+            </div>
+            <div class="admin-card">
+                <h3>User Info</h3>
+                <div id="user-detail-info"></div>
+            </div>
+            <div class="admin-card">
+                <h3>User Posts</h3>
+                <div id="user-detail-posts" class="data-table-wrap">
+                    <p class="empty-msg">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Edit</h3>
+            <input type="text" id="modal-input" placeholder="New name">
+            <input type="text" id="modal-url-input" placeholder="URL" style="display:none;">
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="modal-save">Save</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/admin.js"></script>
+</body>
+</html>

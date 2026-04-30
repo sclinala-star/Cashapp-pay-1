@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classified Ads - Browse by Location</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
+            <nav class="header-nav">
+                <a href="/user#create-post" class="golden-btn">Post Ads</a>
+                {% if user %}
+                <span class="user-greeting">Hi, {{ user.full_name }}</span>
+                <a href="/logout" class="golden-btn golden-btn-outline">Logout</a>
+                {% else %}
+                <a href="/login" class="golden-btn">Login</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="locations-container">
+        {% for country in locations %}
+        <div class="country-section">
+            <h2 class="country-name">{{ country.name }}</h2>
+            <div class="states-grid">
+                {% for state in country.states %}
+                <div class="state-block">
+                    <h3 class="state-name">{{ state.name }}</h3>
+                    <ul class="city-list">
+                        {% for city in state.cities %}
+                        <li><a href="/city/{{ city.name | urlencode }}">{{ city.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Classified Ads. All rights reserved.</p>
+    </footer>
+</body>
+</html>

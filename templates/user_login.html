@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Classified Ads</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
+            <nav class="header-nav">
+                <a href="/">Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2 class="auth-title">Login</h2>
+            <p class="auth-subtitle">Sign in to your account</p>
+
+            {% if error %}
+            <div class="auth-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="/login" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="auth-btn">Login</button>
+            </form>
+
+            <p class="auth-switch">Don't have an account? <a href="/register">Register here</a></p>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Classified Ads. All rights reserved.</p>
+    </footer>
+</body>
+</html>
