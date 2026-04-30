@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadLogo();
     loadCategories();
     loadUsers();
+    loadDesign();
 });
 
 // ─── Sidebar Navigation ─────────────────────────────────────────
@@ -646,6 +647,72 @@ async function loadUsers() {
     } catch (e) {
         container.innerHTML = '<p class="empty-msg">Failed to load users.</p>';
     }
+}
+
+// ─── Page Design ─────────────────────────────────────────────────
+
+const DESIGN_KEYS = [
+    'sidebar_bg', 'sidebar_text', 'sidebar_active_bg', 'sidebar_active_text',
+    'header_bg', 'header_text', 'page_bg', 'card_bg', 'card_text',
+    'accent_color', 'btn_primary_bg', 'btn_primary_text',
+    'btn_danger_bg', 'btn_danger_text',
+    'stats_color1', 'stats_color2', 'stats_color3', 'stats_color4',
+    'table_header_bg', 'table_border', 'link_color'
+];
+
+async function loadDesign() {
+    try {
+        const res = await fetch('/api/admin/design');
+        const data = await res.json();
+        DESIGN_KEYS.forEach(key => {
+            const el = document.getElementById('ds-' + key);
+            if (el && data[key]) el.value = data[key];
+        });
+        const fontEl = document.getElementById('ds-font_family');
+        if (fontEl && data.font_family) {
+            for (let opt of fontEl.options) {
+                if (opt.value === data.font_family) { opt.selected = true; break; }
+            }
+        }
+    } catch (e) {}
+}
+
+async function saveDesign() {
+    const data = {};
+    DESIGN_KEYS.forEach(key => {
+        const el = document.getElementById('ds-' + key);
+        if (el) data[key] = el.value;
+    });
+    const fontEl = document.getElementById('ds-font_family');
+    if (fontEl) data.font_family = fontEl.value;
+    try {
+        const res = await fetch('/api/admin/design', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        if (res.ok) showToast('Design saved successfully!');
+        else showToast('Failed to save design', true);
+    } catch (e) {
+        showToast('Error saving design', true);
+    }
+}
+
+async function resetDesign() {
+    if (!confirm('Reset all design settings to default?')) return;
+    try {
+        const res = await fetch('/api/admin/design/reset', { method: 'POST' });
+        if (res.ok) {
+            showToast('Design reset to default!');
+            loadDesign();
+        }
+    } catch (e) {
+        showToast('Error resetting design', true);
+    }
+}
+
+function previewDesign() {
+    window.open('/user', '_blank');
 }
 
 async function viewUserDetail(userId) {

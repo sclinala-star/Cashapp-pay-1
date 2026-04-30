@@ -5,6 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Classified Ads</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        :root {
+            --ds-sidebar-bg: {{ design.sidebar_bg }};
+            --ds-sidebar-text: {{ design.sidebar_text }};
+            --ds-sidebar-active-bg: {{ design.sidebar_active_bg }};
+            --ds-sidebar-active-text: {{ design.sidebar_active_text }};
+            --ds-header-bg: {{ design.header_bg }};
+            --ds-header-text: {{ design.header_text }};
+            --ds-page-bg: {{ design.page_bg }};
+            --ds-card-bg: {{ design.card_bg }};
+            --ds-card-text: {{ design.card_text }};
+            --ds-accent: {{ design.accent_color }};
+            --ds-btn-primary-bg: {{ design.btn_primary_bg }};
+            --ds-btn-primary-text: {{ design.btn_primary_text }};
+            --ds-btn-danger-bg: {{ design.btn_danger_bg }};
+            --ds-btn-danger-text: {{ design.btn_danger_text }};
+            --ds-stats1: {{ design.stats_color1 }};
+            --ds-stats2: {{ design.stats_color2 }};
+            --ds-stats3: {{ design.stats_color3 }};
+            --ds-stats4: {{ design.stats_color4 }};
+            --ds-table-header: {{ design.table_header_bg }};
+            --ds-table-border: {{ design.table_border }};
+            --ds-link: {{ design.link_color }};
+            --ds-font: {{ design.font_family }};
+        }
+        body { font-family: var(--ds-font) !important; }
+        .main-header { background: var(--ds-header-bg) !important; }
+        .main-header, .main-header * { color: var(--ds-header-text) !important; }
+        .main-header .golden-btn, .main-header .golden-btn-outline { color: var(--ds-header-text) !important; border-color: var(--ds-accent) !important; }
+        .dashboard-sidebar { background: var(--ds-sidebar-bg) !important; }
+        .dashboard-sidebar, .dashboard-sidebar * { color: var(--ds-sidebar-text) !important; }
+        .dashboard-sidebar .dash-nav a.active, .dashboard-sidebar .dash-nav a:hover { background: var(--ds-sidebar-active-bg) !important; color: var(--ds-sidebar-active-text) !important; }
+        .dashboard-main { background: var(--ds-page-bg) !important; }
+        .dash-card, .admin-card, .dash-section { background: var(--ds-card-bg) !important; color: var(--ds-card-text) !important; }
+        .dash-card h3, .dash-section h3 { color: var(--ds-card-text) !important; }
+        .dash-stat-card:nth-child(1) { border-left-color: var(--ds-stats1) !important; }
+        .dash-stat-card:nth-child(1) .dash-stat-value { color: var(--ds-stats1) !important; }
+        .dash-stat-card:nth-child(2) { border-left-color: var(--ds-stats2) !important; }
+        .dash-stat-card:nth-child(2) .dash-stat-value { color: var(--ds-stats2) !important; }
+        .dash-stat-card:nth-child(3) { border-left-color: var(--ds-stats3) !important; }
+        .dash-stat-card:nth-child(3) .dash-stat-value { color: var(--ds-stats3) !important; }
+        .dash-stat-card:nth-child(4) { border-left-color: var(--ds-stats4) !important; }
+        .dash-stat-card:nth-child(4) .dash-stat-value { color: var(--ds-stats4) !important; }
+        .dash-btn-primary, .post-form .btn-primary { background: var(--ds-btn-primary-bg) !important; color: var(--ds-btn-primary-text) !important; }
+        .dash-btn-danger, .btn-danger { background: var(--ds-btn-danger-bg) !important; color: var(--ds-btn-danger-text) !important; }
+        .dash-table thead { background: var(--ds-table-header) !important; }
+        .dash-table td, .dash-table th { border-color: var(--ds-table-border) !important; }
+        .dash-nav a { color: var(--ds-sidebar-text) !important; }
+        a { color: var(--ds-link); }
+    </style>
 </head>
 <body>
     <header class="main-header">

@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .design-group { background: #f9f9f9; border-radius: 10px; padding: 16px; border: 1px solid #eee; }
+        .design-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+        .design-row label { font-size: 0.9rem; color: #555; }
+        .design-color { width: 50px; height: 34px; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; padding: 0; }
+        .design-color:hover { border-color: #daa520; }
+    </style>
 </head>
 <body class="admin-body">
     <!-- Sidebar -->
@@ -58,6 +65,11 @@
         <a href="#" class="sidebar-link" data-page="categories" onclick="showPage('categories', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
             <span class="sidebar-icon">&#128195;</span>
             <span>Categories</span>
+        </a>
+
+        <a href="#" class="sidebar-link" data-page="page-design" onclick="showPage('page-design', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#127912;</span>
+            <span>Page Design</span>
         </a>
 
         <div class="sidebar-section-label">&#8212; USER MANAGEMENT</div>
@@ -199,6 +211,79 @@
             <div class="admin-card">
                 <h3>All Cities</h3>
                 <div id="cities-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Page Design -->
+        <div id="page-page-design" class="admin-page">
+            <div class="admin-page-header">
+                <h2>User Page Design</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Customize colors and styles for the user dashboard. Changes apply instantly.</p>
+            </div>
+            <div class="admin-card">
+                <div style="display:flex;gap:10px;margin-bottom:20px;">
+                    <button class="btn btn-primary" onclick="saveDesign()">Save Design</button>
+                    <button class="btn btn-danger" onclick="resetDesign()">Reset to Default</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #daa520;padding-bottom:6px;">Sidebar</h4>
+                        <div class="design-row"><label>Background</label><input type="color" id="ds-sidebar_bg" class="design-color"></div>
+                        <div class="design-row"><label>Text Color</label><input type="color" id="ds-sidebar_text" class="design-color"></div>
+                        <div class="design-row"><label>Active Item BG</label><input type="color" id="ds-sidebar_active_bg" class="design-color"></div>
+                        <div class="design-row"><label>Active Item Text</label><input type="color" id="ds-sidebar_active_text" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #2196f3;padding-bottom:6px;">Header</h4>
+                        <div class="design-row"><label>Background</label><input type="color" id="ds-header_bg" class="design-color"></div>
+                        <div class="design-row"><label>Text Color</label><input type="color" id="ds-header_text" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #4caf50;padding-bottom:6px;">Page</h4>
+                        <div class="design-row"><label>Page Background</label><input type="color" id="ds-page_bg" class="design-color"></div>
+                        <div class="design-row"><label>Card Background</label><input type="color" id="ds-card_bg" class="design-color"></div>
+                        <div class="design-row"><label>Card Text</label><input type="color" id="ds-card_text" class="design-color"></div>
+                        <div class="design-row"><label>Accent Color</label><input type="color" id="ds-accent_color" class="design-color"></div>
+                        <div class="design-row"><label>Link Color</label><input type="color" id="ds-link_color" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #e91e63;padding-bottom:6px;">Buttons</h4>
+                        <div class="design-row"><label>Primary BG</label><input type="color" id="ds-btn_primary_bg" class="design-color"></div>
+                        <div class="design-row"><label>Primary Text</label><input type="color" id="ds-btn_primary_text" class="design-color"></div>
+                        <div class="design-row"><label>Danger BG</label><input type="color" id="ds-btn_danger_bg" class="design-color"></div>
+                        <div class="design-row"><label>Danger Text</label><input type="color" id="ds-btn_danger_text" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #ff9800;padding-bottom:6px;">Stats Cards</h4>
+                        <div class="design-row"><label>Color 1 (Balance)</label><input type="color" id="ds-stats_color1" class="design-color"></div>
+                        <div class="design-row"><label>Color 2 (Active)</label><input type="color" id="ds-stats_color2" class="design-color"></div>
+                        <div class="design-row"><label>Color 3 (Total)</label><input type="color" id="ds-stats_color3" class="design-color"></div>
+                        <div class="design-row"><label>Color 4 (Reposts)</label><input type="color" id="ds-stats_color4" class="design-color"></div>
+                    </div>
+                    <div class="design-group">
+                        <h4 style="margin:0 0 10px;color:#333;border-bottom:2px solid #9c27b0;padding-bottom:6px;">Table</h4>
+                        <div class="design-row"><label>Header BG</label><input type="color" id="ds-table_header_bg" class="design-color"></div>
+                        <div class="design-row"><label>Border Color</label><input type="color" id="ds-table_border" class="design-color"></div>
+                    </div>
+                </div>
+                <div style="margin-top:16px;">
+                    <h4 style="margin:0 0 10px;color:#333;">Font Family</h4>
+                    <select id="ds-font_family" style="width:100%;max-width:400px;padding:8px;border:1px solid #ddd;border-radius:6px;">
+                        <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI (Default)</option>
+                        <option value="'Arial', Helvetica, sans-serif">Arial</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="Georgia, 'Times New Roman', serif">Georgia (Serif)</option>
+                    </select>
+                </div>
+                <div style="margin-top:20px;display:flex;gap:10px;">
+                    <button class="btn btn-primary" onclick="saveDesign()">Save Design</button>
+                    <button class="btn btn-secondary" onclick="previewDesign()">Preview (Open User Page)</button>
+                </div>
             </div>
         </div>
 

@@ -291,7 +291,8 @@ def user_dashboard(request: Request):
     categories = db.execute("SELECT * FROM categories ORDER BY sort_order, name").fetchall()
     cat_list = [{"id": c["id"], "name": c["name"], "color": c["color"]} for c in categories]
     db.close()
-    return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date, "balance": balance, "posts": post_list, "active_count": active_count, "categories": cat_list})
+    design = get_design_settings()
+    return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date, "balance": balance, "posts": post_list, "active_count": active_count, "categories": cat_list, "design": design})
 
 
 # ─── API: User Posts ─────────────────────────────────────────────────
@@ -1043,6 +1044,72 @@ def api_admin_update_balance(request: Request, user_id: int, data: dict):
     new_balance = data.get("balance", 0)
     db = get_db()
     db.execute("UPDATE users SET balance = ? WHERE id = ?", (new_balance, user_id))
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+# ─── API: Site Design Settings ───────────────────────────────────────
+
+DEFAULT_DESIGN = {
+    "sidebar_bg": "#1a1a2e",
+    "sidebar_text": "#ffffff",
+    "sidebar_active_bg": "#daa520",
+    "sidebar_active_text": "#1a1a2e",
+    "header_bg": "#16213e",
+    "header_text": "#ffffff",
+    "page_bg": "#f0f2f5",
+    "card_bg": "#ffffff",
+    "card_text": "#333333",
+    "accent_color": "#daa520",
+    "btn_primary_bg": "#daa520",
+    "btn_primary_text": "#1a1a2e",
+    "btn_danger_bg": "#dc3545",
+    "btn_danger_text": "#ffffff",
+    "stats_color1": "#4caf50",
+    "stats_color2": "#2196f3",
+    "stats_color3": "#ff9800",
+    "stats_color4": "#e91e63",
+    "table_header_bg": "#f8f9fa",
+    "table_border": "#dee2e6",
+    "link_color": "#daa520",
+    "font_family": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+}
+
+def get_design_settings():
+    db = get_db()
+    rows = db.execute("SELECT key, value FROM site_settings WHERE key LIKE 'design_%'").fetchall()
+    db.close()
+    settings = dict(DEFAULT_DESIGN)
+    for r in rows:
+        k = r["key"].replace("design_", "", 1)
+        settings[k] = r["value"]
+    return settings
+
+
+@app.get("/api/admin/design")
+def api_get_design(request: Request):
+    require_login(request)
+    return get_design_settings()
+
+
+@app.put("/api/admin/design")
+def api_save_design(request: Request, data: dict):
+    require_login(request)
+    db = get_db()
+    for key, value in data.items():
+        if key in DEFAULT_DESIGN:
+            db.execute("INSERT OR REPLACE INTO site_settings (key, value) VALUES (?, ?)", (f"design_{key}", value))
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+@app.post("/api/admin/design/reset")
+def api_reset_design(request: Request):
+    require_login(request)
+    db = get_db()
+    db.execute("DELETE FROM site_settings WHERE key LIKE 'design_%'")
     db.commit()
     db.close()
     return {"success": True}
