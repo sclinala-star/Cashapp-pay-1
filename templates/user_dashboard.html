@@ -160,18 +160,22 @@
                         <div class="pf-row">
                             <div class="pf-field">
                                 <label class="pf-label">Country Select:</label>
-                                <select id="post-city-country" class="pf-input">
+                                <select id="post-country" class="pf-input" onchange="loadPostStates()">
                                     <option value="">--- Select Country ---</option>
-                                    <option value="Canada">🇨🇦 Canada</option>
-                                    <option value="United States">🇺🇸 United States</option>
-                                    <option value="Europe">🇪🇺 Europe</option>
-                                    <option value="Oceania">🌏 Oceania</option>
                                 </select>
                             </div>
                             <div class="pf-field">
                                 <label class="pf-label">State Select:</label>
-                                <select id="post-city-select" class="pf-input">
-                                    <option value="">--- Select State/City ---</option>
+                                <select id="post-state" class="pf-input" onchange="loadPostCities()">
+                                    <option value="">--- Select State ---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pf-row">
+                            <div class="pf-field">
+                                <label class="pf-label">City Select:</label>
+                                <select id="post-city-select" class="pf-input" onchange="document.getElementById('post-city').value=this.value">
+                                    <option value="">--- Select City ---</option>
                                 </select>
                                 <input type="hidden" id="post-city" value="">
                             </div>
@@ -184,111 +188,8 @@
                                     <select id="post-phone-code" class="pf-input pf-phone-code">
                                         <option value="+1">🇺🇸 United States (+1)</option>
                                         <option value="+1">🇨🇦 Canada (+1)</option>
-                                        <option value="+355">🇦🇱 Albania (+355)</option>
-                                        <option value="+376">🇦🇩 Andorra (+376)</option>
-                                        <option value="+54">🇦🇷 Argentina (+54)</option>
-                                        <option value="+374">🇦🇲 Armenia (+374)</option>
-                                        <option value="+61">🇦🇺 Australia (+61)</option>
-                                        <option value="+43">🇦🇹 Austria (+43)</option>
-                                        <option value="+994">🇦🇿 Azerbaijan (+994)</option>
-                                        <option value="+973">🇧🇭 Bahrain (+973)</option>
-                                        <option value="+880">🇧🇩 Bangladesh (+880)</option>
-                                        <option value="+375">🇧🇾 Belarus (+375)</option>
-                                        <option value="+32">🇧🇪 Belgium (+32)</option>
-                                        <option value="+501">🇧🇿 Belize (+501)</option>
-                                        <option value="+591">🇧🇴 Bolivia (+591)</option>
-                                        <option value="+387">🇧🇦 Bosnia (+387)</option>
-                                        <option value="+55">🇧🇷 Brazil (+55)</option>
-                                        <option value="+359">🇧🇬 Bulgaria (+359)</option>
-                                        <option value="+855">🇰🇭 Cambodia (+855)</option>
-                                        <option value="+56">🇨🇱 Chile (+56)</option>
-                                        <option value="+86">🇨🇳 China (+86)</option>
-                                        <option value="+57">🇨🇴 Colombia (+57)</option>
-                                        <option value="+506">🇨🇷 Costa Rica (+506)</option>
-                                        <option value="+385">🇭🇷 Croatia (+385)</option>
-                                        <option value="+53">🇨🇺 Cuba (+53)</option>
-                                        <option value="+357">🇨🇾 Cyprus (+357)</option>
-                                        <option value="+420">🇨🇿 Czech Republic (+420)</option>
-                                        <option value="+45">🇩🇰 Denmark (+45)</option>
-                                        <option value="+593">🇪🇨 Ecuador (+593)</option>
-                                        <option value="+20">🇪🇬 Egypt (+20)</option>
-                                        <option value="+372">🇪🇪 Estonia (+372)</option>
-                                        <option value="+251">🇪🇹 Ethiopia (+251)</option>
-                                        <option value="+679">🇫🇯 Fiji (+679)</option>
-                                        <option value="+358">🇫🇮 Finland (+358)</option>
-                                        <option value="+33">🇫🇷 France (+33)</option>
-                                        <option value="+995">🇬🇪 Georgia (+995)</option>
-                                        <option value="+49">🇩🇪 Germany (+49)</option>
-                                        <option value="+233">🇬🇭 Ghana (+233)</option>
-                                        <option value="+30">🇬🇷 Greece (+30)</option>
-                                        <option value="+502">🇬🇹 Guatemala (+502)</option>
-                                        <option value="+509">🇭🇹 Haiti (+509)</option>
-                                        <option value="+504">🇭🇳 Honduras (+504)</option>
-                                        <option value="+852">🇭🇰 Hong Kong (+852)</option>
-                                        <option value="+36">🇭🇺 Hungary (+36)</option>
-                                        <option value="+354">🇮🇸 Iceland (+354)</option>
-                                        <option value="+91">🇮🇳 India (+91)</option>
-                                        <option value="+62">🇮🇩 Indonesia (+62)</option>
-                                        <option value="+98">🇮🇷 Iran (+98)</option>
-                                        <option value="+964">🇮🇶 Iraq (+964)</option>
-                                        <option value="+353">🇮🇪 Ireland (+353)</option>
-                                        <option value="+972">🇮🇱 Israel (+972)</option>
-                                        <option value="+39">🇮🇹 Italy (+39)</option>
-                                        <option value="+1876">🇯🇲 Jamaica (+1876)</option>
-                                        <option value="+81">🇯🇵 Japan (+81)</option>
-                                        <option value="+962">🇯🇴 Jordan (+962)</option>
-                                        <option value="+7">🇰🇿 Kazakhstan (+7)</option>
-                                        <option value="+254">🇰🇪 Kenya (+254)</option>
-                                        <option value="+82">🇰🇷 South Korea (+82)</option>
-                                        <option value="+965">🇰🇼 Kuwait (+965)</option>
-                                        <option value="+371">🇱🇻 Latvia (+371)</option>
-                                        <option value="+961">🇱🇧 Lebanon (+961)</option>
-                                        <option value="+370">🇱🇹 Lithuania (+370)</option>
-                                        <option value="+352">🇱🇺 Luxembourg (+352)</option>
-                                        <option value="+60">🇲🇾 Malaysia (+60)</option>
-                                        <option value="+52">🇲🇽 Mexico (+52)</option>
-                                        <option value="+373">🇲🇩 Moldova (+373)</option>
-                                        <option value="+976">🇲🇳 Mongolia (+976)</option>
-                                        <option value="+212">🇲🇦 Morocco (+212)</option>
-                                        <option value="+95">🇲🇲 Myanmar (+95)</option>
-                                        <option value="+977">🇳🇵 Nepal (+977)</option>
-                                        <option value="+31">🇳🇱 Netherlands (+31)</option>
-                                        <option value="+64">🇳🇿 New Zealand (+64)</option>
-                                        <option value="+234">🇳🇬 Nigeria (+234)</option>
-                                        <option value="+47">🇳🇴 Norway (+47)</option>
-                                        <option value="+968">🇴🇲 Oman (+968)</option>
-                                        <option value="+92">🇵🇰 Pakistan (+92)</option>
-                                        <option value="+507">🇵🇦 Panama (+507)</option>
-                                        <option value="+595">🇵🇾 Paraguay (+595)</option>
-                                        <option value="+51">🇵🇪 Peru (+51)</option>
-                                        <option value="+63">🇵🇭 Philippines (+63)</option>
-                                        <option value="+48">🇵🇱 Poland (+48)</option>
-                                        <option value="+351">🇵🇹 Portugal (+351)</option>
-                                        <option value="+974">🇶🇦 Qatar (+974)</option>
-                                        <option value="+40">🇷🇴 Romania (+40)</option>
-                                        <option value="+7">🇷🇺 Russia (+7)</option>
-                                        <option value="+966">🇸🇦 Saudi Arabia (+966)</option>
-                                        <option value="+381">🇷🇸 Serbia (+381)</option>
-                                        <option value="+65">🇸🇬 Singapore (+65)</option>
-                                        <option value="+421">🇸🇰 Slovakia (+421)</option>
-                                        <option value="+386">🇸🇮 Slovenia (+386)</option>
-                                        <option value="+27">🇿🇦 South Africa (+27)</option>
-                                        <option value="+34">🇪🇸 Spain (+34)</option>
-                                        <option value="+94">🇱🇰 Sri Lanka (+94)</option>
-                                        <option value="+46">🇸🇪 Sweden (+46)</option>
-                                        <option value="+41">🇨🇭 Switzerland (+41)</option>
-                                        <option value="+886">🇹🇼 Taiwan (+886)</option>
-                                        <option value="+66">🇹🇭 Thailand (+66)</option>
-                                        <option value="+90">🇹🇷 Turkey (+90)</option>
-                                        <option value="+380">🇺🇦 Ukraine (+380)</option>
-                                        <option value="+971">🇦🇪 UAE (+971)</option>
-                                        <option value="+44">🇬🇧 United Kingdom (+44)</option>
-                                        <option value="+598">🇺🇾 Uruguay (+598)</option>
-                                        <option value="+998">🇺🇿 Uzbekistan (+998)</option>
-                                        <option value="+58">🇻🇪 Venezuela (+58)</option>
-                                        <option value="+84">🇻🇳 Vietnam (+84)</option>
                                     </select>
-                                    <input type="text" id="post-phone" class="pf-input pf-phone-num" placeholder="Phone number">
+                                    <input type="tel" id="post-phone" class="pf-input pf-phone-num" placeholder="10 digit number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" style="min-width:180px;letter-spacing:1px;font-size:1rem;" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
                                 </div>
                             </div>
                         </div>
@@ -370,12 +271,10 @@
                                     <label class="pf-label">Phone:</label>
                                     <div class="pf-phone-row">
                                         <select name="phone_code" class="pf-input pf-phone-code">
-                                            {% set codes = [('+1','🇺🇸 United States (+1)'),('+1','🇨🇦 Canada (+1)'),('+355','🇦🇱 Albania (+355)'),('+376','🇦🇩 Andorra (+376)'),('+54','🇦🇷 Argentina (+54)'),('+374','🇦🇲 Armenia (+374)'),('+61','🇦🇺 Australia (+61)'),('+43','🇦🇹 Austria (+43)'),('+994','🇦🇿 Azerbaijan (+994)'),('+973','🇧🇭 Bahrain (+973)'),('+880','🇧🇩 Bangladesh (+880)'),('+375','🇧🇾 Belarus (+375)'),('+32','🇧🇪 Belgium (+32)'),('+501','🇧🇿 Belize (+501)'),('+591','🇧🇴 Bolivia (+591)'),('+387','🇧🇦 Bosnia (+387)'),('+55','🇧🇷 Brazil (+55)'),('+359','🇧🇬 Bulgaria (+359)'),('+855','🇰🇭 Cambodia (+855)'),('+56','🇨🇱 Chile (+56)'),('+86','🇨🇳 China (+86)'),('+57','🇨🇴 Colombia (+57)'),('+506','🇨🇷 Costa Rica (+506)'),('+385','🇭🇷 Croatia (+385)'),('+53','🇨🇺 Cuba (+53)'),('+357','🇨🇾 Cyprus (+357)'),('+420','🇨🇿 Czech Republic (+420)'),('+45','🇩🇰 Denmark (+45)'),('+593','🇪🇨 Ecuador (+593)'),('+20','🇪🇬 Egypt (+20)'),('+372','🇪🇪 Estonia (+372)'),('+251','🇪🇹 Ethiopia (+251)'),('+679','🇫🇯 Fiji (+679)'),('+358','🇫🇮 Finland (+358)'),('+33','🇫🇷 France (+33)'),('+995','🇬🇪 Georgia (+995)'),('+49','🇩🇪 Germany (+49)'),('+233','🇬🇭 Ghana (+233)'),('+30','🇬🇷 Greece (+30)'),('+502','🇬🇹 Guatemala (+502)'),('+509','🇭🇹 Haiti (+509)'),('+504','🇭🇳 Honduras (+504)'),('+852','🇭🇰 Hong Kong (+852)'),('+36','🇭🇺 Hungary (+36)'),('+354','🇮🇸 Iceland (+354)'),('+91','🇮🇳 India (+91)'),('+62','🇮🇩 Indonesia (+62)'),('+98','🇮🇷 Iran (+98)'),('+964','🇮🇶 Iraq (+964)'),('+353','🇮🇪 Ireland (+353)'),('+972','🇮🇱 Israel (+972)'),('+39','🇮🇹 Italy (+39)'),('+1876','🇯🇲 Jamaica (+1876)'),('+81','🇯🇵 Japan (+81)'),('+962','🇯🇴 Jordan (+962)'),('+7','🇰🇿 Kazakhstan (+7)'),('+254','🇰🇪 Kenya (+254)'),('+82','🇰🇷 South Korea (+82)'),('+965','🇰🇼 Kuwait (+965)'),('+371','🇱🇻 Latvia (+371)'),('+961','🇱🇧 Lebanon (+961)'),('+370','🇱🇹 Lithuania (+370)'),('+352','🇱🇺 Luxembourg (+352)'),('+60','🇲🇾 Malaysia (+60)'),('+52','🇲🇽 Mexico (+52)'),('+373','🇲🇩 Moldova (+373)'),('+976','🇲🇳 Mongolia (+976)'),('+212','🇲🇦 Morocco (+212)'),('+95','🇲🇲 Myanmar (+95)'),('+977','🇳🇵 Nepal (+977)'),('+31','🇳🇱 Netherlands (+31)'),('+64','🇳🇿 New Zealand (+64)'),('+234','🇳🇬 Nigeria (+234)'),('+47','🇳🇴 Norway (+47)'),('+968','🇴🇲 Oman (+968)'),('+92','🇵🇰 Pakistan (+92)'),('+507','🇵🇦 Panama (+507)'),('+595','🇵🇾 Paraguay (+595)'),('+51','🇵🇪 Peru (+51)'),('+63','🇵🇭 Philippines (+63)'),('+48','🇵🇱 Poland (+48)'),('+351','🇵🇹 Portugal (+351)'),('+974','🇶🇦 Qatar (+974)'),('+40','🇷🇴 Romania (+40)'),('+7','🇷🇺 Russia (+7)'),('+966','🇸🇦 Saudi Arabia (+966)'),('+381','🇷🇸 Serbia (+381)'),('+65','🇸🇬 Singapore (+65)'),('+421','🇸🇰 Slovakia (+421)'),('+386','🇸🇮 Slovenia (+386)'),('+27','🇿🇦 South Africa (+27)'),('+34','🇪🇸 Spain (+34)'),('+94','🇱🇰 Sri Lanka (+94)'),('+46','🇸🇪 Sweden (+46)'),('+41','🇨🇭 Switzerland (+41)'),('+886','🇹🇼 Taiwan (+886)'),('+66','🇹🇭 Thailand (+66)'),('+90','🇹🇷 Turkey (+90)'),('+380','🇺🇦 Ukraine (+380)'),('+971','🇦🇪 UAE (+971)'),('+44','🇬🇧 United Kingdom (+44)'),('+598','🇺🇾 Uruguay (+598)'),('+998','🇺🇿 Uzbekistan (+998)'),('+58','🇻🇪 Venezuela (+58)'),('+84','🇻🇳 Vietnam (+84)')] %}
-                                            {% for code, label in codes %}
-                                            <option value="{{ code }}" {{ 'selected' if p.phone_code == code }}>{{ label }}</option>
-                                            {% endfor %}
+                                            <option value="+1" {{ 'selected' if p.phone_code == '+1' }}>🇺🇸 United States (+1)</option>
+                                            <option value="+1" {{ 'selected' if p.phone_code == '+1' }}>🇨🇦 Canada (+1)</option>
                                         </select>
-                                        <input type="text" name="phone" class="pf-input pf-phone-num" value="{{ p.phone }}">
+                                        <input type="tel" name="phone" class="pf-input pf-phone-num" value="{{ p.phone }}" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" style="min-width:180px;letter-spacing:1px;font-size:1rem;" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
                                     </div>
                                 </div>
                             </div>
@@ -600,36 +499,55 @@
                 }
             });
         }
-        // Location Picker
-        const locationData = {
-            "Canada": ["Toronto","Vancouver","Montreal","Calgary","Edmonton","Ottawa","Winnipeg","Quebec City","Hamilton","Halifax","Victoria","London","Kitchener","Windsor","Saskatoon","Regina","St. John's","Barrie","Kelowna","Abbotsford","Sudbury","Kingston","Thunder Bay","Moncton","Fredericton","Charlottetown","Yellowknife","Whitehorse","Iqaluit"],
-            "United States": ["New York","Los Angeles","Chicago","Houston","Phoenix","Philadelphia","San Antonio","San Diego","Dallas","San Jose","Austin","Jacksonville","Fort Worth","Columbus","Charlotte","Indianapolis","San Francisco","Seattle","Denver","Washington DC","Nashville","Oklahoma City","El Paso","Boston","Portland","Las Vegas","Memphis","Louisville","Baltimore","Milwaukee","Albuquerque","Tucson","Fresno","Sacramento","Mesa","Kansas City","Atlanta","Omaha","Colorado Springs","Raleigh","Long Beach","Virginia Beach","Miami","Oakland","Minneapolis","Tampa","Tulsa","Arlington","New Orleans"],
-            "Europe": ["London","Paris","Berlin","Madrid","Rome","Amsterdam","Barcelona","Vienna","Prague","Brussels","Dublin","Lisbon","Stockholm","Copenhagen","Helsinki","Oslo","Warsaw","Budapest","Zurich","Munich","Milan","Athens","Istanbul","Edinburgh","Manchester","Hamburg","Lyon","Marseille","Naples","Seville","Valencia","Krakow","Porto","Bucharest","Sofia","Zagreb","Tallinn","Riga","Vilnius"],
-            "Oceania": ["Sydney","Melbourne","Brisbane","Perth","Auckland","Wellington","Adelaide","Gold Coast","Canberra","Christchurch","Hobart","Darwin","Cairns","Newcastle","Wollongong","Geelong","Townsville","Queenstown","Hamilton NZ","Dunedin","Tauranga","Fiji","Suva","Noumea","Papeete"]
-        };
-
-        // Two-step picker: country first, then state/city
-        const countrySelect = document.getElementById('post-city-country');
-        const citySelect = document.getElementById('post-city-select');
-        const cityHidden = document.getElementById('post-city');
-        if (countrySelect && citySelect) {
-            countrySelect.addEventListener('change', function() {
-                const region = this.value;
-                citySelect.innerHTML = '<option value="">--- Select State/City ---</option>';
-                cityHidden.value = '';
-                if (region && locationData[region]) {
-                    locationData[region].forEach(city => {
-                        const opt = document.createElement('option');
-                        opt.value = city + ', ' + region;
-                        opt.textContent = city;
-                        citySelect.appendChild(opt);
-                    });
-                }
-            });
-            citySelect.addEventListener('change', function() {
-                cityHidden.value = this.value;
+        // Location Picker - load countries from DB
+        async function loadPostCountries() {
+            const res = await fetch('/api/countries');
+            const countries = await res.json();
+            const sel = document.getElementById('post-country');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">--- Select Country ---</option>';
+            countries.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name;
+                sel.appendChild(opt);
             });
         }
+        async function loadPostStates() {
+            const countryId = document.getElementById('post-country').value;
+            const stateSel = document.getElementById('post-state');
+            const citySel = document.getElementById('post-city-select');
+            const cityHidden = document.getElementById('post-city');
+            stateSel.innerHTML = '<option value="">--- Select State ---</option>';
+            citySel.innerHTML = '<option value="">--- Select City ---</option>';
+            cityHidden.value = '';
+            if (!countryId) return;
+            const res = await fetch('/api/states/' + countryId);
+            const states = await res.json();
+            states.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.name;
+                stateSel.appendChild(opt);
+            });
+        }
+        async function loadPostCities() {
+            const stateId = document.getElementById('post-state').value;
+            const citySel = document.getElementById('post-city-select');
+            const cityHidden = document.getElementById('post-city');
+            citySel.innerHTML = '<option value="">--- Select City ---</option>';
+            cityHidden.value = '';
+            if (!stateId) return;
+            const res = await fetch('/api/cities/' + stateId);
+            const cities = await res.json();
+            cities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.textContent = c.name;
+                citySel.appendChild(opt);
+            });
+        }
+        loadPostCountries();
     });
     </script>
 </body>

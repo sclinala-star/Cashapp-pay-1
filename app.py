@@ -130,7 +130,8 @@ def index(request: Request):
 
     db.close()
     logo_url = get_logo_url()
-    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url, "user": None})
+    user = get_current_user(request)
+    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url, "user": user})
 
 
 # ─── City Page ────────────────────────────────────────────────────────
@@ -140,10 +141,9 @@ def city_page(request: Request, city_name: str):
     from urllib.parse import unquote
     city_name = unquote(city_name)
     db = get_db()
-    escaped_name = city_name.replace('%', '\\%').replace('_', '\\_')
     posts = db.execute(
-        "SELECT * FROM posts WHERE city LIKE ? ESCAPE '\\' AND status = 'active' ORDER BY created_at DESC",
-        (f"%{escaped_name}%",)
+        "SELECT * FROM posts WHERE city = ? AND status = 'active' ORDER BY created_at DESC",
+        (city_name,)
     ).fetchall()
     post_list = [dict(p) for p in posts]
     menu_items = db.execute("SELECT * FROM menu_items ORDER BY sort_order, name").fetchall()
@@ -169,10 +169,9 @@ def view_ads_page(request: Request, country: str, state: str, city: str, categor
     city = unquote(city)
     category = unquote(category)
     db = get_db()
-    escaped_city = city.replace('%', '\\%').replace('_', '\\_')
     posts = db.execute(
-        "SELECT * FROM posts WHERE city LIKE ? ESCAPE '\\' AND (i_am = ? OR i_see = ?) AND status = 'active' ORDER BY created_at DESC",
-        (f"%{escaped_city}%", category, category)
+        "SELECT * FROM posts WHERE city = ? AND (i_am = ? OR i_see = ?) AND status = 'active' ORDER BY created_at DESC",
+        (city, category, category)
     ).fetchall()
     post_list = [dict(p) for p in posts]
     categories = db.execute("SELECT * FROM categories ORDER BY sort_order, name").fetchall()

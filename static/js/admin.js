@@ -257,6 +257,8 @@ function closeModal() {
     document.getElementById("edit-modal").classList.add("hidden");
     const urlField = document.getElementById("modal-url-input");
     if (urlField) urlField.style.display = "none";
+    const colorField = document.getElementById("modal-color-input");
+    if (colorField) colorField.style.display = "none";
     modalCallback = null;
 }
 
