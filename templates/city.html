@@ -60,32 +60,8 @@
         </div>
         {% endif %}
 
-        {% if posts %}
-        <div class="city-posts-grid">
-            {% for post in posts %}
-            <a href="/ad/{{ post.id }}" class="city-post-card-link">
-                <div class="city-post-card">
-                    <div class="city-post-header">
-                        <span class="city-post-badge">{{ post.i_am }} → {{ post.i_see }}</span>
-                        {% if post.age %}<span class="city-post-age">Age: {{ post.age }}</span>{% endif %}
-                    </div>
-                    <h3 class="city-post-headline">{{ post.headline }}</h3>
-                    <p class="city-post-body">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</p>
-                    <div class="city-post-footer">
-                        {% if post.name_alias %}<span>{{ post.name_alias }}</span>{% endif %}
-                        <span>📍 {{ post.city }}</span>
-                        <span class="city-post-date">{{ post.created_at }}</span>
-                    </div>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="city-no-posts">
-            <p>No ads posted in {{ city_name }} yet.</p>
-            <a href="/register" class="golden-btn">Post an Ad</a>
-        </div>
-        {% endif %}
+
+
 
     </main>
 
