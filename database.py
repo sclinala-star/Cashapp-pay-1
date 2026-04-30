@@ -219,31 +219,27 @@ def seed_data():
                 )
                 city_sort += 1
 
-    # Seed default categories
+    # Seed default categories (original colors: red, blue, green, purple, orange)
     default_categories = [
-        ("W seek M", "#c17d10", 1),
-        ("M seek W", "#8b9a2b", 2),
-        ("M seek M", "#d4a017", 3),
-        ("W seek W", "#7a8450", 4),
-        ("Trans", "#9e9e9e", 5),
+        ("W seek M", "#c62828", 1),
+        ("M seek W", "#1565c0", 2),
+        ("M seek M", "#2e7d32", 3),
+        ("W seek W", "#6a1b9a", 4),
+        ("Trans", "#e65100", 5),
     ]
-    # Rename old categories if they exist
+    # Rename old categories if they exist, keep original colors
     rename_map = {
-        "Categories 1": "W seek M",
-        "Categories 2": "M seek W",
-        "Categories 3": "M seek M",
-        "Categories 4": "W seek W",
-        "Categories 5": "Trans",
+        "Categories 1": ("W seek M", "#c62828"),
+        "Categories 2": ("M seek W", "#1565c0"),
+        "Categories 3": ("M seek M", "#2e7d32"),
+        "Categories 4": ("W seek W", "#6a1b9a"),
+        "Categories 5": ("Trans", "#e65100"),
     }
-    color_map = {
-        "W seek M": "#c17d10",
-        "M seek W": "#8b9a2b",
-        "M seek M": "#d4a017",
-        "W seek W": "#7a8450",
-        "Trans": "#9e9e9e",
-    }
-    for old_name, new_name in rename_map.items():
-        cursor.execute("UPDATE categories SET name = ?, color = ? WHERE name = ?", (new_name, color_map[new_name], old_name))
+    for old_name, (new_name, color) in rename_map.items():
+        cursor.execute("UPDATE categories SET name = ?, color = ? WHERE name = ?", (new_name, color, old_name))
+    # Also revert colors if they were changed
+    for new_name, color in [("W seek M", "#c62828"), ("M seek W", "#1565c0"), ("M seek M", "#2e7d32"), ("W seek W", "#6a1b9a"), ("Trans", "#e65100")]:
+        cursor.execute("UPDATE categories SET color = ? WHERE name = ?", (color, new_name))
     for cat_name, cat_color, cat_order in default_categories:
         cursor.execute(
             "INSERT OR IGNORE INTO categories (name, color, sort_order) VALUES (?, ?, ?)",
