@@ -506,5 +506,7 @@ function escapeAttr(str) {
         .replace(/'/g, "\\'")
         .replace(/"/g, '\\x22')
         .replace(/</g, '\\x3c')
-        .replace(/>/g, '\\x3e');
+        .replace(/>/g, '\\x3e')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r');
 }

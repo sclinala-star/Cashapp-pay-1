@@ -156,7 +156,7 @@ class CityCreate(BaseModel):
 class NameUpdate(BaseModel):
     name: str
 
-SAFE_URL_SCHEMES = {"http", "https", ""}
+SAFE_URL_SCHEMES = {"http", "https"}
 
 def is_safe_url(url: str) -> bool:
     if url.startswith("/") and not url.startswith("//"):
