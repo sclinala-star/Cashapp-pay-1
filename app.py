@@ -150,9 +150,13 @@ def city_page(request: Request, city_name: str):
     post_list = [dict(p) for p in posts]
     menu_items = db.execute("SELECT * FROM menu_items ORDER BY sort_order, name").fetchall()
     menu_list = [{"id": m["id"], "name": m["name"], "url": m["url"]} for m in menu_items]
+    # Find country and state for breadcrumb
+    city_row = db.execute("SELECT c.name as city_name, s.name as state_name, co.name as country_name FROM cities c JOIN states s ON c.state_id = s.id JOIN countries co ON s.country_id = co.id WHERE c.name = ?", (city_name,)).fetchone()
+    country_name = city_row["country_name"] if city_row else ""
+    state_name = city_row["state_name"] if city_row else ""
     db.close()
     logo_url = get_logo_url()
-    return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url, "menu_items": menu_list})
+    return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url, "menu_items": menu_list, "country_name": country_name, "state_name": state_name})
 
 
 # ─── User Auth ───────────────────────────────────────────────────────

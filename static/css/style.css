@@ -1418,28 +1418,60 @@ a:hover {
 }
 
 /* ─── City Page ──────────────────────────────────────────────────── */
-.city-menu-bar {
-    background: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
+.city-breadcrumb-bar {
+    background: linear-gradient(135deg, #c2185b, #e91e63, #d81b60);
     padding: 10px 30px;
     display: flex;
-    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
+    gap: 10px;
+}
+
+.city-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bc-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.bc-link:hover {
+    text-decoration: underline;
+}
+
+.bc-sep {
+    color: rgba(255,255,255,0.7);
+    font-size: 1rem;
+}
+
+.bc-current {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.city-menu-links {
+    display: flex;
+    gap: 15px;
 }
 
 .city-menu-link {
-    color: #333;
+    color: #fff;
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: color 0.2s, background 0.2s;
+    opacity: 0.9;
 }
 
 .city-menu-link:hover {
-    color: #daa520;
-    background: rgba(218,165,32,0.1);
+    opacity: 1;
+    text-decoration: underline;
 }
 
 .city-page-container {

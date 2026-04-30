@@ -23,13 +23,28 @@
         </div>
     </header>
 
-    {% if menu_items %}
-    <div class="city-menu-bar">
-        {% for item in menu_items %}
-        <a href="{{ item.url }}" class="city-menu-link" target="_blank">{{ item.name }}</a>
-        {% endfor %}
+    <div class="city-breadcrumb-bar">
+        <div class="city-breadcrumb">
+            <a href="/" class="bc-link">HOME</a>
+            <span class="bc-sep">›</span>
+            {% if country_name %}
+            <a href="/" class="bc-link">{{ country_name }}</a>
+            <span class="bc-sep">›</span>
+            {% endif %}
+            {% if state_name %}
+            <span class="bc-link">{{ state_name }}</span>
+            <span class="bc-sep">›</span>
+            {% endif %}
+            <span class="bc-current">{{ city_name }}</span>
+        </div>
+        {% if menu_items %}
+        <div class="city-menu-links">
+            {% for item in menu_items %}
+            <a href="{{ item.url }}" class="city-menu-link" target="_blank">{{ item.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 
     <main class="city-page-container">
         <h2 class="city-page-title">{{ city_name }}</h2>
