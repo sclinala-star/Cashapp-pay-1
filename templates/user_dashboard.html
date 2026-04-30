@@ -165,30 +165,14 @@
                             <textarea id="post-body" class="pf-input pf-textarea" rows="6" required></textarea>
                         </div>
 
-                        <div class="pf-field-full">
-                            <label class="pf-label">Choose a Location:</label>
-                            <input type="hidden" id="post-city" value="">
-                            <div class="location-picker" id="location-picker">
-                                <div class="loc-step" id="loc-step-region">
-                                    <div class="loc-title">Choose a Location</div>
-                                    <div class="loc-btn" data-region="Canada">Canada</div>
-                                    <div class="loc-btn" data-region="United States">United States</div>
-                                    <div class="loc-btn" data-region="Europe">Europe</div>
-                                    <div class="loc-btn" data-region="Oceania">Oceania</div>
-                                </div>
-                                <div class="loc-step" id="loc-step-city" style="display:none;">
-                                    <div class="loc-back" id="loc-back">&larr; Back</div>
-                                    <div class="loc-title" id="loc-region-title"></div>
-                                    <div class="loc-cities" id="loc-cities-list"></div>
-                                </div>
-                                <div class="loc-selected" id="loc-selected" style="display:none;">
-                                    <span id="loc-selected-text"></span>
-                                    <span class="loc-change" id="loc-change">Change</span>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="pf-row">
+                            <div class="pf-field">
+                                <label class="pf-label">City:</label>
+                                <select id="post-city-select" class="pf-input">
+                                    <option value="">--- Select City ---</option>
+                                </select>
+                                <input type="hidden" id="post-city" value="">
+                            </div>
                             <div class="pf-field">
                                 <label class="pf-label">Phone:</label>
                                 <div class="pf-phone-row">
@@ -619,46 +603,23 @@
             "Oceania": ["Sydney","Melbourne","Brisbane","Perth","Auckland","Wellington","Adelaide","Gold Coast","Canberra","Christchurch","Hobart","Darwin","Cairns","Newcastle","Wollongong","Geelong","Townsville","Queenstown","Hamilton NZ","Dunedin","Tauranga","Fiji","Suva","Noumea","Papeete"]
         };
 
-        const picker = document.getElementById('location-picker');
-        if (picker) {
-            const stepRegion = document.getElementById('loc-step-region');
-            const stepCity = document.getElementById('loc-step-city');
-            const selected = document.getElementById('loc-selected');
-            const cityInput = document.getElementById('post-city');
-
-            document.querySelectorAll('.loc-btn[data-region]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const region = this.dataset.region;
-                    document.getElementById('loc-region-title').textContent = region;
-                    const citiesList = document.getElementById('loc-cities-list');
-                    citiesList.innerHTML = '';
-                    (locationData[region] || []).forEach(city => {
-                        const d = document.createElement('div');
-                        d.className = 'loc-city-item';
-                        d.textContent = city;
-                        d.addEventListener('click', function() {
-                            cityInput.value = city + ', ' + region;
-                            document.getElementById('loc-selected-text').textContent = city + ', ' + region;
-                            stepCity.style.display = 'none';
-                            stepRegion.style.display = 'none';
-                            selected.style.display = 'flex';
-                        });
-                        citiesList.appendChild(d);
-                    });
-                    stepRegion.style.display = 'none';
-                    stepCity.style.display = 'block';
+        // Populate city select dropdown
+        const citySelect = document.getElementById('post-city-select');
+        const cityHidden = document.getElementById('post-city');
+        if (citySelect) {
+            for (const region in locationData) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = region;
+                locationData[region].forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city + ', ' + region;
+                    opt.textContent = city;
+                    optgroup.appendChild(opt);
                 });
-            });
-
-            document.getElementById('loc-back').addEventListener('click', function() {
-                stepCity.style.display = 'none';
-                stepRegion.style.display = 'block';
-            });
-
-            document.getElementById('loc-change').addEventListener('click', function() {
-                selected.style.display = 'none';
-                stepRegion.style.display = 'block';
-                cityInput.value = '';
+                citySelect.appendChild(optgroup);
+            }
+            citySelect.addEventListener('change', function() {
+                cityHidden.value = this.value;
             });
         }
     });
