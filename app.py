@@ -184,10 +184,11 @@ def view_ads_page(request: Request, country: str, state: str, city: str, categor
     cat_list = [{"id": c["id"], "name": c["name"], "color": c["color"]} for c in categories]
     db.close()
     logo_url = get_logo_url()
+    left_banners, right_banners = get_active_banners()
     return templates.TemplateResponse(request=request, name="viewads.html", context={
         "city_name": city, "state_name": state, "country_name": country,
         "posts": post_list, "logo_url": logo_url, "categories": cat_list,
-        "current_cat": category
+        "current_cat": category, "left_banners": left_banners, "right_banners": right_banners
     })
 
 
@@ -1113,3 +1114,54 @@ def api_reset_design(request: Request):
     db.commit()
     db.close()
     return {"success": True}
+
+
+# ─── API: Ad Banners ─────────────────────────────────────────────────
+
+@app.get("/api/admin/banners")
+def api_get_banners(request: Request):
+    require_login(request)
+    db = get_db()
+    banners = db.execute("SELECT * FROM ad_banners ORDER BY position, sort_order").fetchall()
+    db.close()
+    return [{"id": b["id"], "position": b["position"], "title": b["title"], "image_url": b["image_url"], "link_url": b["link_url"], "is_active": b["is_active"], "sort_order": b["sort_order"]} for b in banners]
+
+
+@app.post("/api/admin/banners")
+def api_add_banner(request: Request, position: str = Form("left"), title: str = Form(""), image_url: str = Form(""), link_url: str = Form("")):
+    require_login(request)
+    db = get_db()
+    db.execute("INSERT INTO ad_banners (position, title, image_url, link_url) VALUES (?, ?, ?, ?)", (position, title, image_url, link_url))
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+@app.put("/api/admin/banners/{banner_id}")
+def api_update_banner(request: Request, banner_id: int, data: dict):
+    require_login(request)
+    db = get_db()
+    db.execute("UPDATE ad_banners SET position=?, title=?, image_url=?, link_url=?, is_active=? WHERE id=?",
+               (data.get("position", "left"), data.get("title", ""), data.get("image_url", ""), data.get("link_url", ""), data.get("is_active", 1), banner_id))
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+@app.delete("/api/admin/banners/{banner_id}")
+def api_delete_banner(request: Request, banner_id: int):
+    require_login(request)
+    db = get_db()
+    db.execute("DELETE FROM ad_banners WHERE id = ?", (banner_id,))
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+def get_active_banners():
+    db = get_db()
+    banners = db.execute("SELECT * FROM ad_banners WHERE is_active = 1 ORDER BY position, sort_order").fetchall()
+    db.close()
+    left = [{"id": b["id"], "title": b["title"], "image_url": b["image_url"], "link_url": b["link_url"]} for b in banners if b["position"] == "left"]
+    right = [{"id": b["id"], "title": b["title"], "image_url": b["image_url"], "link_url": b["link_url"]} for b in banners if b["position"] == "right"]
+    return left, right

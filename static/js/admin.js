@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadCategories();
     loadUsers();
     loadDesign();
+    loadBanners();
 });
 
 // ─── Sidebar Navigation ─────────────────────────────────────────
@@ -647,6 +648,68 @@ async function loadUsers() {
     } catch (e) {
         container.innerHTML = '<p class="empty-msg">Failed to load users.</p>';
     }
+}
+
+// ─── Ad Banners ──────────────────────────────────────────────────
+
+async function loadBanners() {
+    try {
+        const res = await fetch('/api/admin/banners');
+        const banners = await res.json();
+        const container = document.getElementById('banners-list');
+        if (!container) return;
+        if (banners.length === 0) {
+            container.innerHTML = '<p class="empty-msg">No banners added yet.</p>';
+            return;
+        }
+        let html = '<table class="data-table"><thead><tr><th>Position</th><th>Title</th><th>Image</th><th>Link</th><th>Active</th><th>Actions</th></tr></thead><tbody>';
+        banners.forEach(b => {
+            html += `<tr>
+                <td><span style="padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;background:${b.position==='left'?'#e3f2fd':'#fce4ec'};color:${b.position==='left'?'#1565c0':'#c62828'}">${b.position.toUpperCase()}</span></td>
+                <td>${b.title || '-'}</td>
+                <td>${b.image_url ? `<img src="${b.image_url}" style="max-width:60px;max-height:40px;border-radius:4px;">` : '-'}</td>
+                <td>${b.link_url ? `<a href="${b.link_url}" target="_blank" style="color:#1565c0;font-size:0.8rem;">Open</a>` : '-'}</td>
+                <td>${b.is_active ? '✓ Active' : '✗ Off'}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteBanner(${b.id})">Delete</button></td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    } catch (e) {
+        const container = document.getElementById('banners-list');
+        if (container) container.innerHTML = '<p class="empty-msg">Failed to load banners.</p>';
+    }
+}
+
+async function addBanner() {
+    const position = document.getElementById('banner-position').value;
+    const title = document.getElementById('banner-title').value;
+    const image_url = document.getElementById('banner-image').value;
+    const link_url = document.getElementById('banner-link').value;
+    const formData = new FormData();
+    formData.append('position', position);
+    formData.append('title', title);
+    formData.append('image_url', image_url);
+    formData.append('link_url', link_url);
+    try {
+        const res = await fetch('/api/admin/banners', { method: 'POST', body: formData });
+        if (res.ok) {
+            showToast('Banner added!');
+            document.getElementById('banner-title').value = '';
+            document.getElementById('banner-image').value = '';
+            document.getElementById('banner-link').value = '';
+            loadBanners();
+        } else showToast('Failed to add banner', true);
+    } catch (e) { showToast('Error adding banner', true); }
+}
+
+async function deleteBanner(id) {
+    if (!confirm('Delete this banner?')) return;
+    try {
+        const res = await fetch(`/api/admin/banners/${id}`, { method: 'DELETE' });
+        if (res.ok) { showToast('Banner deleted!'); loadBanners(); }
+        else showToast('Failed to delete', true);
+    } catch (e) { showToast('Error deleting banner', true); }
 }
 
 // ─── Page Design ─────────────────────────────────────────────────

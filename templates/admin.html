@@ -72,6 +72,11 @@
             <span>Page Design</span>
         </a>
 
+        <a href="#" class="sidebar-link" data-page="banners" onclick="showPage('banners', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#128444;</span>
+            <span>Ad Banners</span>
+        </a>
+
         <div class="sidebar-section-label">&#8212; USER MANAGEMENT</div>
 
         <a href="#" class="sidebar-link" data-page="users" onclick="showPage('users', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
@@ -211,6 +216,43 @@
             <div class="admin-card">
                 <h3>All Cities</h3>
                 <div id="cities-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Ad Banners -->
+        <div id="page-banners" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Ad Banners</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Manage left and right banner ads on viewads pages.</p>
+            </div>
+            <div class="admin-card">
+                <h3>Add New Banner</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Position</label>
+                        <select id="banner-position" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;">
+                            <option value="left">Left Side</option>
+                            <option value="right">Right Side</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Title</label>
+                        <input type="text" id="banner-title" placeholder="Banner title" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Image URL</label>
+                        <input type="text" id="banner-image" placeholder="https://example.com/banner.jpg" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;">Link URL</label>
+                        <input type="text" id="banner-link" placeholder="https://example.com" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addBanner()">Add Banner</button>
+            </div>
+            <div class="admin-card" style="margin-top:16px;">
+                <h3>Current Banners</h3>
+                <div id="banners-list"></div>
             </div>
         </div>
 

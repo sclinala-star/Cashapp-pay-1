@@ -117,6 +117,19 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ad_banners (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            position TEXT NOT NULL DEFAULT 'left',
+            title TEXT DEFAULT '',
+            image_url TEXT DEFAULT '',
+            link_url TEXT DEFAULT '',
+            is_active INTEGER DEFAULT 1,
+            sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     conn.close()
 
