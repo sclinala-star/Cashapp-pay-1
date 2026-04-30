@@ -374,17 +374,23 @@
     document.addEventListener('DOMContentLoaded', function() {
         const navItems = document.querySelectorAll('.dash-nav-item[data-page]');
         const pages = document.querySelectorAll('.dash-page');
+        function showDashPage(pageName) {
+            navItems.forEach(n => n.classList.remove('active'));
+            pages.forEach(p => p.classList.remove('active'));
+            const navItem = document.querySelector('.dash-nav-item[data-page="' + pageName + '"]');
+            if (navItem) navItem.classList.add('active');
+            const target = document.getElementById('dash-' + pageName);
+            if (target) target.classList.add('active');
+        }
         navItems.forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
-                const page = this.dataset.page;
-                navItems.forEach(n => n.classList.remove('active'));
-                this.classList.add('active');
-                pages.forEach(p => p.classList.remove('active'));
-                const target = document.getElementById('dash-' + page);
-                if (target) target.classList.add('active');
+                showDashPage(this.dataset.page);
             });
         });
+        if (window.location.hash === '#create-post') {
+            showDashPage('post-public');
+        }
 
         const createForm = document.getElementById('create-post-form');
         if (createForm) {
