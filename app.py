@@ -93,6 +93,9 @@ def startup():
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
+    user = get_current_user(request)
+    if user:
+        return RedirectResponse(url="/user", status_code=303)
     db = get_db()
     countries = db.execute(
         "SELECT * FROM countries ORDER BY sort_order, name"
@@ -130,8 +133,7 @@ def index(request: Request):
 
     db.close()
     logo_url = get_logo_url()
-    user = get_current_user(request)
-    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url, "user": user})
+    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list, "logo_url": logo_url, "user": None})
 
 
 # ─── User Auth ───────────────────────────────────────────────────────
@@ -140,7 +142,7 @@ def index(request: Request):
 def user_login_page(request: Request):
     user = get_current_user(request)
     if user:
-        return RedirectResponse(url="/", status_code=303)
+        return RedirectResponse(url="/user", status_code=303)
     return templates.TemplateResponse(request=request, name="user_login.html", context={"error": None, "logo_url": get_logo_url()})
 
 
@@ -152,7 +154,7 @@ def user_login(request: Request, email: str = Form(...), password: str = Form(..
 
     if user and verify_password(password, user["password_hash"]):
         token = serializer.dumps({"user_id": user["id"], "full_name": user["full_name"], "email": user["email"]})
-        response = RedirectResponse(url="/dashboard", status_code=303)
+        response = RedirectResponse(url="/user", status_code=303)
         response.set_cookie(USER_SESSION_COOKIE, token, httponly=True, max_age=86400)
         return response
 
@@ -163,7 +165,7 @@ def user_login(request: Request, email: str = Form(...), password: str = Form(..
 def user_register_page(request: Request):
     user = get_current_user(request)
     if user:
-        return RedirectResponse(url="/", status_code=303)
+        return RedirectResponse(url="/user", status_code=303)
     return templates.TemplateResponse(request=request, name="user_register.html", context={"error": None, "logo_url": get_logo_url()})
 
 
@@ -195,7 +197,7 @@ def user_register(request: Request, full_name: str = Form(...), email: str = For
     return RedirectResponse(url="/login?registered=1", status_code=303)
 
 
-@app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/user", response_class=HTMLResponse)
 def user_dashboard(request: Request):
     user = get_current_user(request)
     if not user:
