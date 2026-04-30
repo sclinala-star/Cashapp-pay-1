@@ -352,7 +352,7 @@ function renderMenuItemsList() {
         html += `<tr>
             <td>${i + 1}</td>
             <td>${escapeHtml(m.name)}</td>
-            <td><a href="${escapeHtml(m.url)}" target="_blank" style="color:#42a5f5;word-break:break-all;">${escapeHtml(m.url)}</a></td>
+            <td><a href="${escapeHtmlAttr(m.url)}" target="_blank" style="color:#42a5f5;word-break:break-all;">${escapeHtml(m.url)}</a></td>
             <td class="table-actions">
                 <button class="btn btn-edit btn-sm" onclick="editMenuItem(${m.id}, '${escapeAttr(m.name)}', '${escapeAttr(m.url)}')">Edit</button>
                 <button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${m.id}, '${escapeAttr(m.name)}')">Delete</button>
@@ -444,6 +444,10 @@ function escapeHtml(str) {
     const div = document.createElement("div");
     div.textContent = str;
     return div.innerHTML;
+}
+
+function escapeHtmlAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function escapeAttr(str) {
