@@ -1323,6 +1323,99 @@ a:hover {
     font-weight: 500;
 }
 
+/* ─── Location Picker ───────────────────────────────────────────── */
+.location-picker {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 12px;
+    padding: 15px;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.loc-title {
+    color: #87ceeb;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.loc-btn {
+    background: #daa520;
+    color: white;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.loc-btn:hover {
+    background: #c8941a;
+    transform: translateX(4px);
+}
+
+.loc-back {
+    color: #87ceeb;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.loc-back:hover {
+    text-decoration: underline;
+}
+
+.loc-cities {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.loc-city-item {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: background 0.2s;
+    text-align: center;
+}
+
+.loc-city-item:hover {
+    background: #daa520;
+    color: #1a1a2e;
+    font-weight: 600;
+}
+
+.loc-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(218,165,32,0.15);
+    border: 1px solid #daa520;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #ffd700;
+    font-weight: 600;
+}
+
+.loc-change {
+    color: #87ceeb;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.loc-change:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .dashboard-container {
         flex-direction: column;
