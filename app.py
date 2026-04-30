@@ -93,9 +93,6 @@ def startup():
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    user = get_current_user(request)
-    if user:
-        return RedirectResponse(url="/user", status_code=303)
     db = get_db()
     countries = db.execute(
         "SELECT * FROM countries ORDER BY sort_order, name"
