@@ -203,10 +203,121 @@ def user_dashboard(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=303)
     db = get_db()
-    u = db.execute("SELECT created_at FROM users WHERE id = ?", (user["user_id"],)).fetchone()
-    db.close()
+    u = db.execute("SELECT balance, created_at FROM users WHERE id = ?", (user["user_id"],)).fetchone()
+    balance = u["balance"] if u else 0.00
     joined_date = u["created_at"][:10] if u and u["created_at"] else "N/A"
-    return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date})
+    posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC", (user["user_id"],)).fetchall()
+    post_list = [{"id": p["id"], "title": p["title"], "description": p["description"], "category": p["category"], "location": p["location"], "price": p["price"], "status": p["status"], "repost_count": p["repost_count"], "created_at": p["created_at"], "updated_at": p["updated_at"]} for p in posts]
+    active_count = sum(1 for p in post_list if p["status"] == "active")
+    db.close()
+    return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date, "balance": balance, "posts": post_list, "active_count": active_count})
+
+
+# ─── API: User Posts ─────────────────────────────────────────────────
+
+class PostCreate(BaseModel):
+    title: str
+    description: str
+    category: str = ""
+    location: str = ""
+    price: str = ""
+
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    location: Optional[str] = None
+    price: Optional[str] = None
+
+
+@app.get("/api/posts")
+def api_get_user_posts(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db = get_db()
+    posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC", (user["user_id"],)).fetchall()
+    result = [{"id": p["id"], "title": p["title"], "description": p["description"], "category": p["category"], "location": p["location"], "price": p["price"], "status": p["status"], "repost_count": p["repost_count"], "created_at": p["created_at"]} for p in posts]
+    db.close()
+    return result
+
+
+@app.post("/api/posts", status_code=201)
+def api_create_post(request: Request, data: PostCreate):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    title = data.title.strip()
+    description = data.description.strip()
+    if not title or not description:
+        return JSONResponse({"error": "Title and description are required"}, status_code=400)
+    db = get_db()
+    cursor = db.execute(
+        "INSERT INTO posts (user_id, title, description, category, location, price) VALUES (?, ?, ?, ?, ?, ?)",
+        (user["user_id"], title, description, data.category.strip(), data.location.strip(), data.price.strip())
+    )
+    db.commit()
+    post_id = cursor.lastrowid
+    db.close()
+    return {"id": post_id, "title": title, "description": description, "status": "active"}
+
+
+@app.put("/api/posts/{post_id}")
+def api_update_post(request: Request, post_id: int, data: PostUpdate):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db = get_db()
+    post = db.execute("SELECT * FROM posts WHERE id = ? AND user_id = ?", (post_id, user["user_id"])).fetchone()
+    if not post:
+        db.close()
+        return JSONResponse({"error": "Post not found"}, status_code=404)
+    title = data.title.strip() if data.title else post["title"]
+    description = data.description.strip() if data.description else post["description"]
+    category = data.category.strip() if data.category is not None else post["category"]
+    location = data.location.strip() if data.location is not None else post["location"]
+    price = data.price.strip() if data.price is not None else post["price"]
+    if not title or not description:
+        db.close()
+        return JSONResponse({"error": "Title and description are required"}, status_code=400)
+    db.execute("UPDATE posts SET title=?, description=?, category=?, location=?, price=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+               (title, description, category, location, price, post_id))
+    db.commit()
+    db.close()
+    return {"id": post_id, "title": title, "description": description}
+
+
+@app.post("/api/posts/{post_id}/repost")
+def api_repost(request: Request, post_id: int):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db = get_db()
+    post = db.execute("SELECT * FROM posts WHERE id = ? AND user_id = ?", (post_id, user["user_id"])).fetchone()
+    if not post:
+        db.close()
+        return JSONResponse({"error": "Post not found"}, status_code=404)
+    db.execute("UPDATE posts SET repost_count = repost_count + 1, updated_at = CURRENT_TIMESTAMP, status = 'active' WHERE id = ?", (post_id,))
+    db.commit()
+    db.close()
+    return {"id": post_id, "repost_count": post["repost_count"] + 1}
+
+
+@app.delete("/api/posts/{post_id}")
+def api_delete_post(request: Request, post_id: int):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db = get_db()
+    post = db.execute("SELECT * FROM posts WHERE id = ? AND user_id = ?", (post_id, user["user_id"])).fetchone()
+    if not post:
+        db.close()
+        return JSONResponse({"error": "Post not found"}, status_code=404)
+    db.execute("DELETE FROM posts WHERE id = ?", (post_id,))
+    db.commit()
+    db.close()
+    return {"success": True}
 
 
 class ChangePassword(BaseModel):

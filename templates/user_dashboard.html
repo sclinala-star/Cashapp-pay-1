@@ -11,13 +11,12 @@
         <div class="header-content">
             <div class="header-left">
                 {% if logo_url %}
-                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                <a href="/user" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
                 {% else %}
                 <h1 class="site-title">Classified</h1>
                 {% endif %}
             </div>
             <nav class="header-nav">
-                <a href="/" class="golden-btn">Post Ads</a>
                 <span class="user-greeting">Hi, {{ user.full_name }}</span>
                 <a href="/logout" class="golden-btn golden-btn-outline">Logout</a>
             </nav>
@@ -32,16 +31,22 @@
                 <p>{{ user.email }}</p>
             </div>
             <nav class="dash-nav">
-                <a href="/user" class="dash-nav-item active" data-page="overview">
+                <a href="#" class="dash-nav-item active" data-page="overview">
                     <span class="dash-icon">📊</span> Overview
                 </a>
-                <a href="/user" class="dash-nav-item" data-page="my-ads">
-                    <span class="dash-icon">📋</span> My Ads
+                <a href="#" class="dash-nav-item" data-page="post-public">
+                    <span class="dash-icon">📝</span> Post Public
                 </a>
-                <a href="/user" class="dash-nav-item" data-page="profile">
+                <a href="#" class="dash-nav-item" data-page="post-edit">
+                    <span class="dash-icon">✏️</span> Post Edit
+                </a>
+                <a href="#" class="dash-nav-item" data-page="post-repost">
+                    <span class="dash-icon">🔄</span> Post Repost
+                </a>
+                <a href="#" class="dash-nav-item" data-page="profile">
                     <span class="dash-icon">👤</span> Profile
                 </a>
-                <a href="/user" class="dash-nav-item" data-page="settings">
+                <a href="#" class="dash-nav-item" data-page="settings">
                     <span class="dash-icon">⚙️</span> Settings
                 </a>
             </nav>
@@ -57,39 +62,153 @@
             <div id="dash-overview" class="dash-page active">
                 <h2>Welcome back, {{ user.full_name }}!</h2>
                 <div class="dash-stats">
-                    <div class="dash-stat-card">
-                        <div class="dash-stat-number">0</div>
-                        <div class="dash-stat-label">Active Ads</div>
+                    <div class="dash-stat-card balance-card">
+                        <div class="dash-stat-number">${{ "%.2f" | format(balance) }}</div>
+                        <div class="dash-stat-label">Current Balance</div>
                     </div>
                     <div class="dash-stat-card">
-                        <div class="dash-stat-number">0</div>
-                        <div class="dash-stat-label">Total Views</div>
+                        <div class="dash-stat-number">{{ active_count }}</div>
+                        <div class="dash-stat-label">Active Posts</div>
                     </div>
                     <div class="dash-stat-card">
-                        <div class="dash-stat-number">0</div>
-                        <div class="dash-stat-label">Messages</div>
+                        <div class="dash-stat-number">{{ posts | length }}</div>
+                        <div class="dash-stat-label">Total Posts</div>
                     </div>
                     <div class="dash-stat-card">
-                        <div class="dash-stat-number">0</div>
-                        <div class="dash-stat-label">Favorites</div>
+                        <div class="dash-stat-number">{{ posts | sum(attribute='repost_count') }}</div>
+                        <div class="dash-stat-label">Total Reposts</div>
                     </div>
                 </div>
                 <div class="dash-recent">
-                    <h3>Recent Activity</h3>
+                    <h3>Recent Posts</h3>
+                    {% if posts %}
+                    <table class="dash-table">
+                        <thead>
+                            <tr><th>Title</th><th>Price</th><th>Status</th><th>Date</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for p in posts[:5] %}
+                            <tr>
+                                <td>{{ p.title }}</td>
+                                <td>{{ p.price or '-' }}</td>
+                                <td><span class="status-badge status-{{ p.status }}">{{ p.status }}</span></td>
+                                <td>{{ p.created_at[:10] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
                     <div class="dash-empty">
-                        <p>No recent activity yet. Start by posting your first ad!</p>
-                        <a href="/" class="auth-btn" style="display:inline-block;width:auto;padding:10px 30px;margin-top:10px;">Post an Ad</a>
+                        <p>No posts yet. Create your first ad!</p>
                     </div>
+                    {% endif %}
                 </div>
             </div>
 
-            <!-- My Ads Page -->
-            <div id="dash-my-ads" class="dash-page">
-                <h2>My Ads</h2>
-                <div class="dash-empty">
-                    <p>You haven't posted any ads yet.</p>
-                    <a href="/" class="auth-btn" style="display:inline-block;width:auto;padding:10px 30px;margin-top:10px;">Post Your First Ad</a>
+            <!-- Post Public Page -->
+            <div id="dash-post-public" class="dash-page">
+                <h2>Post Public Ad</h2>
+                <div class="dash-form-card">
+                    <form id="create-post-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="post-title">Title *</label>
+                            <input type="text" id="post-title" placeholder="Ad title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-description">Description *</label>
+                            <textarea id="post-description" rows="5" placeholder="Describe your ad..." required style="width:100%;padding:11px 14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;font-family:inherit;resize:vertical;"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="post-category">Category</label>
+                                <input type="text" id="post-category" placeholder="e.g. Electronics, Vehicles">
+                            </div>
+                            <div class="form-group">
+                                <label for="post-location">Location</label>
+                                <input type="text" id="post-location" placeholder="e.g. New York, NY">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-price">Price</label>
+                            <input type="text" id="post-price" placeholder="e.g. $100 or Free">
+                        </div>
+                        <button type="submit" class="auth-btn" style="width:auto;padding:10px 40px;">Publish Ad</button>
+                    </form>
+                    <div id="post-create-msg" style="margin-top:12px;"></div>
                 </div>
+            </div>
+
+            <!-- Post Edit Page -->
+            <div id="dash-post-edit" class="dash-page">
+                <h2>Edit Posts</h2>
+                <div id="edit-posts-list">
+                    {% if posts %}
+                    {% for p in posts %}
+                    <div class="post-edit-card" data-post-id="{{ p.id }}">
+                        <div class="post-edit-header">
+                            <h3>{{ p.title }}</h3>
+                            <span class="status-badge status-{{ p.status }}">{{ p.status }}</span>
+                        </div>
+                        <form class="edit-post-form auth-form" data-id="{{ p.id }}">
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="title" value="{{ p.title }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="description" rows="3" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;resize:vertical;">{{ p.description }}</textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Category</label>
+                                    <input type="text" name="category" value="{{ p.category }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <input type="text" name="location" value="{{ p.location }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Price</label>
+                                <input type="text" name="price" value="{{ p.price }}">
+                            </div>
+                            <div class="post-edit-actions">
+                                <button type="submit" class="auth-btn" style="width:auto;padding:8px 25px;">Save Changes</button>
+                                <button type="button" class="btn btn-danger delete-post-btn" data-id="{{ p.id }}">Delete</button>
+                            </div>
+                            <div class="edit-msg" style="margin-top:8px;"></div>
+                        </form>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="dash-empty">
+                        <p>No posts to edit.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Post Repost Page -->
+            <div id="dash-post-repost" class="dash-page">
+                <h2>Repost Ads</h2>
+                {% if posts %}
+                <div class="repost-list">
+                    {% for p in posts %}
+                    <div class="repost-card">
+                        <div class="repost-info">
+                            <h3>{{ p.title }}</h3>
+                            <p>Status: <span class="status-badge status-{{ p.status }}">{{ p.status }}</span> | Reposted: {{ p.repost_count }} times</p>
+                        </div>
+                        <button class="auth-btn repost-btn" data-id="{{ p.id }}" style="width:auto;padding:8px 25px;">Repost Now</button>
+                        <span class="repost-msg" style="margin-left:10px;"></span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="dash-empty">
+                    <p>No posts available to repost.</p>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Profile Page -->
@@ -103,6 +222,10 @@
                     <div class="dash-profile-row">
                         <label>Email</label>
                         <span>{{ user.email }}</span>
+                    </div>
+                    <div class="dash-profile-row">
+                        <label>Balance</label>
+                        <span>${{ "%.2f" | format(balance) }}</span>
                     </div>
                     <div class="dash-profile-row">
                         <label>Member Since</label>
@@ -139,9 +262,9 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Sidebar navigation
         const navItems = document.querySelectorAll('.dash-nav-item[data-page]');
         const pages = document.querySelectorAll('.dash-page');
-
         navItems.forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -154,6 +277,89 @@
             });
         });
 
+        // Create post
+        const createForm = document.getElementById('create-post-form');
+        if (createForm) {
+            createForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const msgDiv = document.getElementById('post-create-msg');
+                const body = {
+                    title: document.getElementById('post-title').value,
+                    description: document.getElementById('post-description').value,
+                    category: document.getElementById('post-category').value,
+                    location: document.getElementById('post-location').value,
+                    price: document.getElementById('post-price').value
+                };
+                const res = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msgDiv.innerHTML = '<div style="background:#e8f5e9;color:#2e7d32;padding:10px;border-radius:6px;">Ad published successfully! Refreshing...</div>';
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    msgDiv.innerHTML = '<div class="auth-error">' + (data.error || 'Failed') + '</div>';
+                }
+            });
+        }
+
+        // Edit post forms
+        document.querySelectorAll('.edit-post-form').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const id = this.dataset.id;
+                const msgDiv = this.querySelector('.edit-msg');
+                const body = {
+                    title: this.querySelector('[name=title]').value,
+                    description: this.querySelector('[name=description]').value,
+                    category: this.querySelector('[name=category]').value,
+                    location: this.querySelector('[name=location]').value,
+                    price: this.querySelector('[name=price]').value
+                };
+                const res = await fetch('/api/posts/' + id, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msgDiv.innerHTML = '<div style="background:#e8f5e9;color:#2e7d32;padding:8px;border-radius:6px;font-size:0.85rem;">Saved!</div>';
+                    setTimeout(() => msgDiv.innerHTML = '', 2000);
+                } else {
+                    msgDiv.innerHTML = '<div class="auth-error" style="font-size:0.85rem;">' + (data.error || 'Failed') + '</div>';
+                }
+            });
+        });
+
+        // Delete post
+        document.querySelectorAll('.delete-post-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('Delete this post?')) return;
+                const id = this.dataset.id;
+                const res = await fetch('/api/posts/' + id, { method: 'DELETE' });
+                if (res.ok) location.reload();
+            });
+        });
+
+        // Repost
+        document.querySelectorAll('.repost-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.dataset.id;
+                const msgSpan = this.nextElementSibling;
+                const res = await fetch('/api/posts/' + id + '/repost', { method: 'POST' });
+                const data = await res.json();
+                if (res.ok) {
+                    msgSpan.innerHTML = '<span style="color:#2e7d32;">Reposted! (Total: ' + data.repost_count + ')</span>';
+                    this.textContent = 'Reposted!';
+                    this.disabled = true;
+                } else {
+                    msgSpan.innerHTML = '<span style="color:#c62828;">' + (data.error || 'Failed') + '</span>';
+                }
+            });
+        });
+
         // Change password
         const pwForm = document.getElementById('change-password-form');
         if (pwForm) {
@@ -163,12 +369,10 @@
                 const curr = document.getElementById('current_password').value;
                 const newP = document.getElementById('new_password').value;
                 const conf = document.getElementById('confirm_new_password').value;
-
                 if (newP !== conf) {
                     msgDiv.innerHTML = '<div class="auth-error">Passwords do not match</div>';
                     return;
                 }
-
                 const res = await fetch('/api/change-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -179,7 +383,7 @@
                     msgDiv.innerHTML = '<div style="background:#e8f5e9;color:#2e7d32;padding:10px;border-radius:6px;">Password updated successfully!</div>';
                     pwForm.reset();
                 } else {
-                    msgDiv.innerHTML = '<div class="auth-error">' + (data.error || 'Failed to update password') + '</div>';
+                    msgDiv.innerHTML = '<div class="auth-error">' + (data.error || 'Failed') + '</div>';
                 }
             });
         }

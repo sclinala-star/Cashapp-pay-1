@@ -61,7 +61,25 @@ def init_db():
             full_name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
+            balance REAL DEFAULT 0.00,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            category TEXT DEFAULT '',
+            location TEXT DEFAULT '',
+            price TEXT DEFAULT '',
+            status TEXT DEFAULT 'active',
+            repost_count INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
     """)
 
