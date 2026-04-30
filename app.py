@@ -426,7 +426,7 @@ def api_add_menu_item(request: Request, data: MenuItemCreate):
         return JSONResponse({"error": "Menu item name is required"}, status_code=400)
     if not url:
         url = "#"
-    if not is_safe_url(url):
+    if url != "#" and not is_safe_url(url):
         return JSONResponse({"error": "URL must use http:// or https://"}, status_code=400)
 
     db = get_db()
