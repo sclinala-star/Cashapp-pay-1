@@ -1522,6 +1522,13 @@ a:hover {
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
+.cat-btn-active {
+    outline: 3px solid #ffd700;
+    outline-offset: 2px;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255,215,0,0.4);
+}
+
 .cat-btn-1 { background: linear-gradient(135deg, #c62828, #e53935); }
 .cat-btn-2 { background: linear-gradient(135deg, #1565c0, #42a5f5); }
 .cat-btn-3 { background: linear-gradient(135deg, #2e7d32, #66bb6a); }

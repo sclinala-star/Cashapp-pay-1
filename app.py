@@ -162,6 +162,33 @@ def city_page(request: Request, city_name: str):
     return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url, "menu_items": menu_list, "country_name": country_name, "state_name": state_name, "categories": cat_list})
 
 
+# ─── View Ads Page ───────────────────────────────────────────────────
+
+@app.get("/{country}/{state}/{city}/{category}/viewads", response_class=HTMLResponse)
+def view_ads_page(request: Request, country: str, state: str, city: str, category: str):
+    from urllib.parse import unquote
+    country = unquote(country)
+    state = unquote(state)
+    city = unquote(city)
+    category = unquote(category)
+    db = get_db()
+    escaped_city = city.replace('%', '\\%').replace('_', '\\_')
+    posts = db.execute(
+        "SELECT * FROM posts WHERE city LIKE ? ESCAPE '\\' AND (i_am = ? OR i_see = ?) AND status = 'active' ORDER BY created_at DESC",
+        (f"%{escaped_city}%", category, category)
+    ).fetchall()
+    post_list = [dict(p) for p in posts]
+    categories = db.execute("SELECT * FROM categories ORDER BY sort_order, name").fetchall()
+    cat_list = [{"id": c["id"], "name": c["name"], "color": c["color"]} for c in categories]
+    db.close()
+    logo_url = get_logo_url()
+    return templates.TemplateResponse(request=request, name="viewads.html", context={
+        "city_name": city, "state_name": state, "country_name": country,
+        "posts": post_list, "logo_url": logo_url, "categories": cat_list,
+        "current_cat": category
+    })
+
+
 # ─── User Auth ───────────────────────────────────────────────────────
 
 @app.get("/login", response_class=HTMLResponse)
