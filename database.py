@@ -241,12 +241,22 @@ def seed_data():
 
     # Seed default categories (only if none exist)
     default_categories = [
-        ("Categories 1", "#c62828", 1),
-        ("Categories 2", "#1565c0", 2),
-        ("Categories 3", "#2e7d32", 3),
-        ("Categories 4", "#6a1b9a", 4),
-        ("Categories 5", "#e65100", 5),
+        ("W seek M", "#c62828", 1),
+        ("M seek W", "#1565c0", 2),
+        ("M seek M", "#2e7d32", 3),
+        ("W seek W", "#6a1b9a", 4),
+        ("Trans", "#e65100", 5),
     ]
+    # Rename old-style category names if they exist
+    old_to_new = {
+        "Categories 1": "W seek M",
+        "Categories 2": "M seek W",
+        "Categories 3": "M seek M",
+        "Categories 4": "W seek W",
+        "Categories 5": "Trans",
+    }
+    for old_name, new_name in old_to_new.items():
+        cursor.execute("UPDATE categories SET name = ? WHERE name = ?", (new_name, old_name))
     cat_count = cursor.execute("SELECT COUNT(*) FROM categories").fetchone()[0]
     if cat_count > 0:
         conn.commit()
