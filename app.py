@@ -159,7 +159,7 @@ class NameUpdate(BaseModel):
 SAFE_URL_SCHEMES = {"http", "https", ""}
 
 def is_safe_url(url: str) -> bool:
-    if url.startswith("/"):
+    if url.startswith("/") and not url.startswith("//"):
         return True
     try:
         parsed = urlparse(url)
@@ -494,7 +494,7 @@ def api_get_logo():
 @app.post("/api/logo")
 async def api_upload_logo(request: Request, file: UploadFile = File(...)):
     require_login(request)
-    ext = os.path.splitext(file.filename)[1].lower()
+    ext = os.path.splitext(file.filename or "")[1].lower()
     if ext not in ALLOWED_LOGO_EXTENSIONS:
         return JSONResponse({"error": "Invalid file type. Use PNG, JPG, GIF, SVG, or WEBP."}, status_code=400)
 
