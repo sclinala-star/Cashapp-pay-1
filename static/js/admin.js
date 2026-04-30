@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadMenuItems();
     loadLogo();
     loadCategories();
+    loadUsers();
 });
 
 // ─── Sidebar Navigation ─────────────────────────────────────────
@@ -609,4 +610,92 @@ function escapeAttr(str) {
         .replace(/>/g, '\\x3e')
         .replace(/\n/g, '\\n')
         .replace(/\r/g, '\\r');
+}
+
+
+// ─── User Management ─────────────────────────────────────────────
+
+async function loadUsers() {
+    const container = document.getElementById("users-list");
+    if (!container) return;
+    try {
+        const res = await fetch("/api/admin/users");
+        const users = await res.json();
+        if (!users.length) {
+            container.innerHTML = '<p class="empty-msg">No registered users yet.</p>';
+            return;
+        }
+        let html = '<table class="data-table"><thead><tr>';
+        html += '<th>Name</th><th>Email</th><th>Balance</th><th>Active</th><th>Draft</th><th>Total</th><th>Joined</th><th>Actions</th>';
+        html += '</tr></thead><tbody>';
+        users.forEach(u => {
+            const joined = u.created_at ? u.created_at.substring(0, 10) : 'N/A';
+            html += '<tr>';
+            html += '<td>' + escapeHtml(u.full_name) + '</td>';
+            html += '<td>' + escapeHtml(u.email) + '</td>';
+            html += '<td style="color:#4caf50;font-weight:700;">$' + Number(u.balance).toFixed(2) + '</td>';
+            html += '<td style="color:#4caf50;">' + u.active_posts + '</td>';
+            html += '<td style="color:#ff9800;">' + u.draft_posts + '</td>';
+            html += '<td>' + u.total_posts + '</td>';
+            html += '<td>' + joined + '</td>';
+            html += '<td><button class="btn btn-primary btn-sm" onclick="viewUserDetail(' + u.id + ')">View Posts</button></td>';
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = '<p class="empty-msg">Failed to load users.</p>';
+    }
+}
+
+async function viewUserDetail(userId) {
+    showPage('user-detail', null);
+    const infoDiv = document.getElementById("user-detail-info");
+    const postsDiv = document.getElementById("user-detail-posts");
+    infoDiv.innerHTML = '<p class="empty-msg">Loading...</p>';
+    postsDiv.innerHTML = '<p class="empty-msg">Loading...</p>';
+
+    try {
+        const res = await fetch("/api/admin/users/" + userId);
+        const data = await res.json();
+        const u = data.user;
+        const joined = u.created_at ? u.created_at.substring(0, 10) : 'N/A';
+
+        document.getElementById("user-detail-title").textContent = u.full_name + ' — Posts';
+
+        let infoHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">';
+        infoHtml += '<div><strong>Name:</strong> ' + escapeHtml(u.full_name) + '</div>';
+        infoHtml += '<div><strong>Email:</strong> ' + escapeHtml(u.email) + '</div>';
+        infoHtml += '<div><strong>Balance:</strong> <span style="color:#4caf50;font-weight:700;">$' + Number(u.balance).toFixed(2) + '</span></div>';
+        infoHtml += '<div><strong>Joined:</strong> ' + joined + '</div>';
+        infoHtml += '</div>';
+        infoDiv.innerHTML = infoHtml;
+
+        if (!data.posts.length) {
+            postsDiv.innerHTML = '<p class="empty-msg">No posts by this user.</p>';
+            return;
+        }
+
+        let html = '<table class="data-table"><thead><tr>';
+        html += '<th>Headline</th><th>City</th><th>I AM</th><th>I SEE</th><th>Status</th><th>Reposts</th><th>Date</th>';
+        html += '</tr></thead><tbody>';
+        data.posts.forEach(p => {
+            const date = p.created_at ? p.created_at.substring(0, 10) : 'N/A';
+            const statusColor = p.status === 'active' ? '#4caf50' : '#ff9800';
+            const statusLabel = p.status === 'active' ? 'Success' : 'Draft';
+            html += '<tr>';
+            html += '<td>' + escapeHtml(p.headline || '') + '</td>';
+            html += '<td>' + escapeHtml(p.city || '-') + '</td>';
+            html += '<td>' + escapeHtml(p.i_am || '-') + '</td>';
+            html += '<td>' + escapeHtml(p.i_see || '-') + '</td>';
+            html += '<td><span style="background:' + statusColor + ';color:#fff;padding:2px 8px;border-radius:10px;font-size:0.8rem;">' + statusLabel + '</span></td>';
+            html += '<td>' + p.repost_count + '</td>';
+            html += '<td>' + date + '</td>';
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+        postsDiv.innerHTML = html;
+    } catch (e) {
+        infoDiv.innerHTML = '<p class="empty-msg">Failed to load user details.</p>';
+    }
 }

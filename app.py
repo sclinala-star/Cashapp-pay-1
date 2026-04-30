@@ -336,19 +336,22 @@ async def api_create_post(
     if not db_user:
         db.close()
         return JSONResponse({"error": "Session expired. Please login again."}, status_code=401)
+    ALLOWED_PHOTO_EXT = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+    ALLOWED_VIDEO_EXT = {".mp4", ".mov", ".avi", ".webm", ".mkv"}
     try:
         cursor = db.execute(
             "INSERT INTO posts (user_id, i_am, i_see, name_alias, age, headline, body, city, phone_code, phone, location_area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (user["user_id"], i_am.strip(), i_see.strip(), name_alias.strip(), age.strip(), headline, body_text, city.strip(), phone_code.strip(), phone.strip(), location_area.strip())
         )
-        db.commit()
         post_id = cursor.lastrowid
 
         slot = 0
         if photos:
             for photo in photos:
                 if photo.filename:
-                    ext = os.path.splitext(photo.filename)[1] or ".jpg"
+                    ext = os.path.splitext(photo.filename)[1].lower() or ".jpg"
+                    if ext not in ALLOWED_PHOTO_EXT:
+                        continue
                     fname = f"post_{post_id}_photo_{slot}_{uuid.uuid4().hex[:8]}{ext}"
                     fpath = os.path.join(MEDIA_DIR, fname)
                     content = await photo.read()
@@ -360,7 +363,9 @@ async def api_create_post(
         if videos:
             for video in videos:
                 if video.filename:
-                    ext = os.path.splitext(video.filename)[1] or ".mp4"
+                    ext = os.path.splitext(video.filename)[1].lower() or ".mp4"
+                    if ext not in ALLOWED_VIDEO_EXT:
+                        continue
                     fname = f"post_{post_id}_video_{slot}_{uuid.uuid4().hex[:8]}{ext}"
                     fpath = os.path.join(MEDIA_DIR, fname)
                     content = await video.read()
@@ -372,6 +377,7 @@ async def api_create_post(
         db.close()
         return {"id": post_id, "headline": headline, "status": "active"}
     except Exception as e:
+        db.rollback()
         db.close()
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -959,4 +965,58 @@ def api_delete_logo(request: Request):
         if os.path.exists(old_path):
             os.remove(old_path)
         os.remove(LOGO_FILE)
+    return {"success": True}
+
+
+# ─── API: Admin User Management ──────────────────────────────────────
+
+@app.get("/api/admin/users")
+def api_admin_users(request: Request):
+    require_login(request)
+    db = get_db()
+    users = db.execute("SELECT id, full_name, email, balance, created_at FROM users ORDER BY created_at DESC").fetchall()
+    result = []
+    for u in users:
+        total = db.execute("SELECT COUNT(*) as cnt FROM posts WHERE user_id = ?", (u["id"],)).fetchone()["cnt"]
+        active = db.execute("SELECT COUNT(*) as cnt FROM posts WHERE user_id = ? AND status = 'active'", (u["id"],)).fetchone()["cnt"]
+        draft = total - active
+        result.append({
+            "id": u["id"],
+            "full_name": u["full_name"],
+            "email": u["email"],
+            "balance": u["balance"],
+            "total_posts": total,
+            "active_posts": active,
+            "draft_posts": draft,
+            "created_at": u["created_at"]
+        })
+    db.close()
+    return result
+
+
+@app.get("/api/admin/users/{user_id}")
+def api_admin_user_detail(request: Request, user_id: int):
+    require_login(request)
+    db = get_db()
+    u = db.execute("SELECT id, full_name, email, balance, created_at FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not u:
+        db.close()
+        return JSONResponse({"error": "User not found"}, status_code=404)
+    posts = db.execute("SELECT id, headline, body, city, i_am, i_see, status, repost_count, created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC", (user_id,)).fetchall()
+    post_list = [dict(p) for p in posts]
+    db.close()
+    return {
+        "user": {"id": u["id"], "full_name": u["full_name"], "email": u["email"], "balance": u["balance"], "created_at": u["created_at"]},
+        "posts": post_list
+    }
+
+
+@app.put("/api/admin/users/{user_id}/balance")
+def api_admin_update_balance(request: Request, user_id: int, data: dict):
+    require_login(request)
+    new_balance = data.get("balance", 0)
+    db = get_db()
+    db.execute("UPDATE users SET balance = ? WHERE id = ?", (new_balance, user_id))
+    db.commit()
+    db.close()
     return {"success": True}

@@ -60,6 +60,13 @@
             <span>Categories</span>
         </a>
 
+        <div class="sidebar-section-label">&#8212; USER MANAGEMENT</div>
+
+        <a href="#" class="sidebar-link" data-page="users" onclick="showPage('users', this)" style="padding:8px 20px;display:flex;align-items:center;gap:8px;">
+            <span class="sidebar-icon">&#128101;</span>
+            <span>Users</span>
+        </a>
+
         <div class="sidebar-bottom">
             <a href="/" class="sidebar-link"><span class="sidebar-icon">&#127968;</span> View Site</a>
             <a href="/admin/logout" class="sidebar-link"><span class="sidebar-icon">&#128682;</span> Logout</a>
@@ -192,6 +199,38 @@
             <div class="admin-card">
                 <h3>All Cities</h3>
                 <div id="cities-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Users Page -->
+        <div id="page-users" class="admin-page">
+            <div class="admin-page-header">
+                <h2>User Management</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Monitor all registered users, their balance, and post activity.</p>
+            </div>
+            <div class="admin-card">
+                <h3>All Users</h3>
+                <div id="users-list" class="data-table-wrap">
+                    <p class="empty-msg">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Detail Page -->
+        <div id="page-user-detail" class="admin-page">
+            <div class="admin-page-header">
+                <h2 id="user-detail-title">User Posts</h2>
+                <button class="btn btn-secondary" onclick="showPage('users', document.querySelector('[data-page=users]'))" style="margin-top:8px;">&#8592; Back to Users</button>
+            </div>
+            <div class="admin-card">
+                <h3>User Info</h3>
+                <div id="user-detail-info"></div>
+            </div>
+            <div class="admin-card">
+                <h3>User Posts</h3>
+                <div id="user-detail-posts" class="data-table-wrap">
+                    <p class="empty-msg">Loading...</p>
+                </div>
             </div>
         </div>
     </div>
