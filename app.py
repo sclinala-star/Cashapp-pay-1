@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from itsdangerous import URLSafeSerializer
 from typing import Optional
+from urllib.parse import urlparse
 import os
 
 from database import get_db, init_db, seed_data
@@ -137,6 +138,18 @@ class CityCreate(BaseModel):
 
 class NameUpdate(BaseModel):
     name: str
+
+SAFE_URL_SCHEMES = {"http", "https", ""}
+
+def is_safe_url(url: str) -> bool:
+    if url.startswith("/"):
+        return True
+    try:
+        parsed = urlparse(url)
+        return parsed.scheme.lower() in SAFE_URL_SCHEMES
+    except Exception:
+        return False
+
 
 class MenuItemCreate(BaseModel):
     name: str
@@ -396,6 +409,8 @@ def api_add_menu_item(request: Request, data: MenuItemCreate):
         return JSONResponse({"error": "Menu item name is required"}, status_code=400)
     if not url:
         url = "#"
+    if not is_safe_url(url):
+        return JSONResponse({"error": "URL must use http:// or https://"}, status_code=400)
 
     db = get_db()
     try:
@@ -425,6 +440,13 @@ def api_update_menu_item(request: Request, item_id: int, data: MenuItemUpdate):
 
     name = data.name.strip() if data.name else item["name"]
     url = data.url.strip() if data.url else item["url"]
+
+    if not name:
+        db.close()
+        return JSONResponse({"error": "Menu item name is required"}, status_code=400)
+    if not is_safe_url(url):
+        db.close()
+        return JSONResponse({"error": "URL must use http:// or https://"}, status_code=400)
 
     db.execute("UPDATE menu_items SET name = ?, url = ? WHERE id = ?", (name, url, item_id))
     db.commit()
