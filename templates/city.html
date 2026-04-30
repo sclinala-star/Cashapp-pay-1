@@ -23,6 +23,14 @@
         </div>
     </header>
 
+    {% if menu_items %}
+    <div class="city-menu-bar">
+        {% for item in menu_items %}
+        <a href="{{ item.url }}" class="city-menu-link" target="_blank">{{ item.name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <main class="city-page-container">
         <h2 class="city-page-title">{{ city_name }}</h2>
         <p class="city-page-subtitle">Classified Ads in {{ city_name }}</p>

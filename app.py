@@ -148,9 +148,11 @@ def city_page(request: Request, city_name: str):
         (f"%{city_name}%",)
     ).fetchall()
     post_list = [dict(p) for p in posts]
+    menu_items = db.execute("SELECT * FROM menu_items ORDER BY sort_order, name").fetchall()
+    menu_list = [{"id": m["id"], "name": m["name"], "url": m["url"]} for m in menu_items]
     db.close()
     logo_url = get_logo_url()
-    return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url})
+    return templates.TemplateResponse(request=request, name="city.html", context={"city_name": city_name, "posts": post_list, "logo_url": logo_url, "menu_items": menu_list})
 
 
 # ─── User Auth ───────────────────────────────────────────────────────
