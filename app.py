@@ -152,7 +152,7 @@ def user_login(request: Request, email: str = Form(...), password: str = Form(..
 
     if user and verify_password(password, user["password_hash"]):
         token = serializer.dumps({"user_id": user["id"], "full_name": user["full_name"], "email": user["email"]})
-        response = RedirectResponse(url="/", status_code=303)
+        response = RedirectResponse(url="/dashboard", status_code=303)
         response.set_cookie(USER_SESSION_COOKIE, token, httponly=True, max_age=86400)
         return response
 
@@ -193,6 +193,50 @@ def user_register(request: Request, full_name: str = Form(...), email: str = For
     db.close()
 
     return RedirectResponse(url="/login?registered=1", status_code=303)
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def user_dashboard(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    db = get_db()
+    u = db.execute("SELECT created_at FROM users WHERE id = ?", (user["user_id"],)).fetchone()
+    db.close()
+    joined_date = u["created_at"][:10] if u and u["created_at"] else "N/A"
+    return templates.TemplateResponse(request=request, name="user_dashboard.html", context={"user": user, "logo_url": get_logo_url(), "joined_date": joined_date})
+
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@app.post("/api/change-password")
+def api_change_password(request: Request, data: ChangePassword):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    db = get_db()
+    u = db.execute("SELECT * FROM users WHERE id = ?", (user["user_id"],)).fetchone()
+    if not u:
+        db.close()
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    if not verify_password(data.current_password, u["password_hash"]):
+        db.close()
+        return JSONResponse({"error": "Current password is incorrect"}, status_code=400)
+
+    if len(data.new_password) < 6:
+        db.close()
+        return JSONResponse({"error": "New password must be at least 6 characters"}, status_code=400)
+
+    new_hash = hash_password(data.new_password)
+    db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, user["user_id"]))
+    db.commit()
+    db.close()
+    return {"success": True}
 
 
 @app.get("/logout")

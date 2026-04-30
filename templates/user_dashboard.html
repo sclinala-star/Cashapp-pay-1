@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Classified Ads</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
+            <nav class="header-nav">
+                <a href="/" class="golden-btn">Post Ads</a>
+                <span class="user-greeting">Hi, {{ user.full_name }}</span>
+                <a href="/logout" class="golden-btn golden-btn-outline">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-sidebar">
+            <div class="dash-user-info">
+                <div class="dash-avatar">{{ user.full_name[0] | upper }}</div>
+                <h3>{{ user.full_name }}</h3>
+                <p>{{ user.email }}</p>
+            </div>
+            <nav class="dash-nav">
+                <a href="/dashboard" class="dash-nav-item active" data-page="overview">
+                    <span class="dash-icon">📊</span> Overview
+                </a>
+                <a href="/dashboard" class="dash-nav-item" data-page="my-ads">
+                    <span class="dash-icon">📋</span> My Ads
+                </a>
+                <a href="/dashboard" class="dash-nav-item" data-page="profile">
+                    <span class="dash-icon">👤</span> Profile
+                </a>
+                <a href="/dashboard" class="dash-nav-item" data-page="settings">
+                    <span class="dash-icon">⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="dash-nav-bottom">
+                <a href="/" class="dash-nav-item">
+                    <span class="dash-icon">🏠</span> Back to Home
+                </a>
+                <a href="/logout" class="dash-nav-item">
+                    <span class="dash-icon">🚪</span> Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="dashboard-main">
+            <!-- Overview Page -->
+            <div id="dash-overview" class="dash-page active">
+                <h2>Welcome back, {{ user.full_name }}!</h2>
+                <div class="dash-stats">
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-number">0</div>
+                        <div class="dash-stat-label">Active Ads</div>
+                    </div>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-number">0</div>
+                        <div class="dash-stat-label">Total Views</div>
+                    </div>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-number">0</div>
+                        <div class="dash-stat-label">Messages</div>
+                    </div>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-number">0</div>
+                        <div class="dash-stat-label">Favorites</div>
+                    </div>
+                </div>
+                <div class="dash-recent">
+                    <h3>Recent Activity</h3>
+                    <div class="dash-empty">
+                        <p>No recent activity yet. Start by posting your first ad!</p>
+                        <a href="/" class="auth-btn" style="display:inline-block;width:auto;padding:10px 30px;margin-top:10px;">Post an Ad</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Ads Page -->
+            <div id="dash-my-ads" class="dash-page">
+                <h2>My Ads</h2>
+                <div class="dash-empty">
+                    <p>You haven't posted any ads yet.</p>
+                    <a href="/" class="auth-btn" style="display:inline-block;width:auto;padding:10px 30px;margin-top:10px;">Post Your First Ad</a>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="dash-profile" class="dash-page">
+                <h2>My Profile</h2>
+                <div class="dash-profile-card">
+                    <div class="dash-profile-row">
+                        <label>Full Name</label>
+                        <span>{{ user.full_name }}</span>
+                    </div>
+                    <div class="dash-profile-row">
+                        <label>Email</label>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    <div class="dash-profile-row">
+                        <label>Member Since</label>
+                        <span>{{ joined_date }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="dash-settings" class="dash-page">
+                <h2>Settings</h2>
+                <div class="dash-settings-section">
+                    <h3>Change Password</h3>
+                    <form id="change-password-form" class="auth-form" style="max-width:400px;">
+                        <div class="form-group">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" id="current_password" name="current_password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <input type="password" id="new_password" name="new_password" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_new_password">Confirm New Password</label>
+                            <input type="password" id="confirm_new_password" name="confirm_new_password" required>
+                        </div>
+                        <button type="submit" class="auth-btn" style="width:auto;padding:10px 30px;">Update Password</button>
+                    </form>
+                    <div id="password-msg" style="margin-top:10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navItems = document.querySelectorAll('.dash-nav-item[data-page]');
+        const pages = document.querySelectorAll('.dash-page');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+                navItems.forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+                pages.forEach(p => p.classList.remove('active'));
+                const target = document.getElementById('dash-' + page);
+                if (target) target.classList.add('active');
+            });
+        });
+
+        // Change password
+        const pwForm = document.getElementById('change-password-form');
+        if (pwForm) {
+            pwForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const msgDiv = document.getElementById('password-msg');
+                const curr = document.getElementById('current_password').value;
+                const newP = document.getElementById('new_password').value;
+                const conf = document.getElementById('confirm_new_password').value;
+
+                if (newP !== conf) {
+                    msgDiv.innerHTML = '<div class="auth-error">Passwords do not match</div>';
+                    return;
+                }
+
+                const res = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({current_password: curr, new_password: newP})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msgDiv.innerHTML = '<div style="background:#e8f5e9;color:#2e7d32;padding:10px;border-radius:6px;">Password updated successfully!</div>';
+                    pwForm.reset();
+                } else {
+                    msgDiv.innerHTML = '<div class="auth-error">' + (data.error || 'Failed to update password') + '</div>';
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>
