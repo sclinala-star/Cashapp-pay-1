@@ -80,8 +80,13 @@ def index(request: Request):
             "states": state_list,
         })
 
+    menu_items = db.execute(
+        "SELECT * FROM menu_items ORDER BY sort_order, name"
+    ).fetchall()
+    menu_list = [{"id": m["id"], "name": m["name"], "url": m["url"]} for m in menu_items]
+
     db.close()
-    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data})
+    return templates.TemplateResponse(request=request, name="index.html", context={"locations": location_data, "menu_items": menu_list})
 
 
 # ─── Admin Auth ──────────────────────────────────────────────────────
@@ -132,6 +137,14 @@ class CityCreate(BaseModel):
 
 class NameUpdate(BaseModel):
     name: str
+
+class MenuItemCreate(BaseModel):
+    name: str
+    url: str
+
+class MenuItemUpdate(BaseModel):
+    name: Optional[str] = None
+    url: Optional[str] = None
 
 
 # ─── API: Countries ──────────────────────────────────────────────────
@@ -359,3 +372,71 @@ def api_get_all_locations():
 
     db.close()
     return result
+
+
+# ─── API: Menu Items ─────────────────────────────────────────────────
+
+@app.get("/api/menu-items")
+def api_get_menu_items():
+    db = get_db()
+    items = db.execute(
+        "SELECT * FROM menu_items ORDER BY sort_order, name"
+    ).fetchall()
+    result = [{"id": m["id"], "name": m["name"], "url": m["url"]} for m in items]
+    db.close()
+    return result
+
+
+@app.post("/api/menu-items", status_code=201)
+def api_add_menu_item(request: Request, data: MenuItemCreate):
+    require_login(request)
+    name = data.name.strip()
+    url = data.url.strip()
+    if not name:
+        return JSONResponse({"error": "Menu item name is required"}, status_code=400)
+    if not url:
+        url = "#"
+
+    db = get_db()
+    try:
+        max_order = db.execute("SELECT MAX(sort_order) FROM menu_items").fetchone()[0]
+        sort_order = (max_order or 0) + 1
+        cursor = db.execute(
+            "INSERT INTO menu_items (name, url, sort_order) VALUES (?, ?, ?)",
+            (name, url, sort_order),
+        )
+        db.commit()
+        item_id = cursor.lastrowid
+        db.close()
+        return {"id": item_id, "name": name, "url": url}
+    except Exception as e:
+        db.close()
+        return JSONResponse({"error": str(e)}, status_code=400)
+
+
+@app.put("/api/menu-items/{item_id}")
+def api_update_menu_item(request: Request, item_id: int, data: MenuItemUpdate):
+    require_login(request)
+    db = get_db()
+    item = db.execute("SELECT * FROM menu_items WHERE id = ?", (item_id,)).fetchone()
+    if not item:
+        db.close()
+        return JSONResponse({"error": "Menu item not found"}, status_code=404)
+
+    name = data.name.strip() if data.name else item["name"]
+    url = data.url.strip() if data.url else item["url"]
+
+    db.execute("UPDATE menu_items SET name = ?, url = ? WHERE id = ?", (name, url, item_id))
+    db.commit()
+    db.close()
+    return {"id": item_id, "name": name, "url": url}
+
+
+@app.delete("/api/menu-items/{item_id}")
+def api_delete_menu_item(request: Request, item_id: int):
+    require_login(request)
+    db = get_db()
+    db.execute("DELETE FROM menu_items WHERE id = ?", (item_id,))
+    db.commit()
+    db.close()
+    return {"success": True}

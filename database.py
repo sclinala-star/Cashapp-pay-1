@@ -46,6 +46,15 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS menu_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            url TEXT NOT NULL DEFAULT '#',
+            sort_order INTEGER DEFAULT 0
+        )
+    """)
+
     conn.commit()
     conn.close()
 

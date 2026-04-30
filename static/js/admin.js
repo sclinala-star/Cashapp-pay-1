@@ -1,7 +1,9 @@
 let locationData = [];
+let menuData = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     loadLocations();
+    loadMenuItems();
 });
 
 // ─── Sidebar Navigation ─────────────────────────────────────────
@@ -9,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function showPage(page, el) {
     document.querySelectorAll(".admin-page").forEach((p) => p.classList.remove("active"));
     document.getElementById("page-" + page).classList.add("active");
-    document.querySelectorAll(".sidebar-dropdown-menu .sidebar-link").forEach((l) => l.classList.remove("active"));
+    document.querySelectorAll(".sidebar .sidebar-link[data-page]").forEach((l) => l.classList.remove("active"));
     if (el) el.classList.add("active");
     if (window.innerWidth < 900) document.querySelector(".sidebar").classList.remove("open");
 }
@@ -251,6 +253,8 @@ function openModal(title, currentName, callback) {
 
 function closeModal() {
     document.getElementById("edit-modal").classList.add("hidden");
+    const urlField = document.getElementById("modal-url-input");
+    if (urlField) urlField.style.display = "none";
     modalCallback = null;
 }
 
@@ -325,6 +329,103 @@ async function deleteCity(id, name) {
     if (res.ok) {
         showToast("City deleted", "success");
         loadLocations();
+    }
+}
+
+// ─── Menu Items ─────────────────────────────────────────────────
+
+async function loadMenuItems() {
+    const res = await fetch("/api/menu-items");
+    menuData = await res.json();
+    renderMenuItemsList();
+}
+
+function renderMenuItemsList() {
+    const container = document.getElementById("menu-items-list");
+    if (menuData.length === 0) {
+        container.innerHTML = '<p class="empty-msg">No menu items added yet.</p>';
+        return;
+    }
+
+    let html = '<table class="data-table"><thead><tr><th>#</th><th>Name</th><th>URL</th><th>Actions</th></tr></thead><tbody>';
+    menuData.forEach((m, i) => {
+        html += `<tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(m.name)}</td>
+            <td><a href="${escapeHtml(m.url)}" target="_blank" style="color:#42a5f5;word-break:break-all;">${escapeHtml(m.url)}</a></td>
+            <td class="table-actions">
+                <button class="btn btn-edit btn-sm" onclick="editMenuItem(${m.id}, '${escapeAttr(m.name)}', '${escapeAttr(m.url)}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${m.id}, '${escapeAttr(m.name)}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+async function addMenuItem() {
+    const nameInput = document.getElementById("new-menu-name");
+    const urlInput = document.getElementById("new-menu-url");
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
+
+    if (!name) return showToast("Please enter a menu name", "error");
+    if (!url) return showToast("Please enter a URL", "error");
+
+    const res = await fetch("/api/menu-items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, url }),
+    });
+
+    if (res.ok || res.status === 201) {
+        nameInput.value = "";
+        urlInput.value = "";
+        showToast("Menu item added", "success");
+        loadMenuItems();
+    } else {
+        const data = await res.json();
+        showToast(data.error || "Failed to add menu item", "error");
+    }
+}
+
+function editMenuItem(id, currentName, currentUrl) {
+    document.getElementById("modal-title").textContent = "Edit Menu Item";
+    document.getElementById("modal-input").value = currentName;
+
+    const urlField = document.getElementById("modal-url-input");
+    if (urlField) {
+        urlField.style.display = "block";
+        urlField.value = currentUrl;
+    }
+
+    document.getElementById("edit-modal").classList.remove("hidden");
+
+    document.getElementById("modal-save").onclick = async () => {
+        const newName = document.getElementById("modal-input").value.trim();
+        const newUrl = urlField ? urlField.value.trim() : currentUrl;
+        if (!newName) return showToast("Name cannot be empty", "error");
+
+        const res = await fetch(`/api/menu-items/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: newName, url: newUrl }),
+        });
+        if (res.ok) {
+            showToast("Menu item updated", "success");
+            loadMenuItems();
+        }
+        closeModal();
+    };
+}
+
+async function deleteMenuItem(id, name) {
+    if (!confirm(`Delete menu item "${name}"?`)) return;
+
+    const res = await fetch(`/api/menu-items/${id}`, { method: "DELETE" });
+    if (res.ok) {
+        showToast("Menu item deleted", "success");
+        loadMenuItems();
     }
 }
 

@@ -55,6 +55,31 @@ a:hover {
     color: white;
 }
 
+.header-menu {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.header-menu-btn {
+    display: inline-block;
+    padding: 6px 18px;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 6px;
+    color: white !important;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+}
+
+.header-menu-btn:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: white;
+    color: white !important;
+}
+
 /* ─── Main Page: Locations ────────────────────────────────────── */
 .locations-container {
     max-width: 1200px;

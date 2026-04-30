@@ -10,6 +10,11 @@
     <header class="main-header">
         <div class="header-content">
             <h1 class="site-title">Classified</h1>
+            <nav class="header-menu">
+                {% for item in menu_items %}
+                <a href="{{ item.url }}" class="header-menu-btn" target="_blank" rel="noopener">{{ item.name }}</a>
+                {% endfor %}
+            </nav>
             <nav class="header-nav">
                 <a href="/">Home</a>
                 <a href="/admin">Admin</a>

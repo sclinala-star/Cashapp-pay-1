@@ -35,6 +35,21 @@
             </div>
         </div>
 
+        <div class="sidebar-section-label">&#8212; SITE SETTINGS</div>
+
+        <div class="sidebar-dropdown">
+            <div class="sidebar-dropdown-toggle" onclick="toggleDropdown(this)">
+                <span class="sidebar-icon">&#9776;</span>
+                <span>Menu</span>
+                <span class="sidebar-chevron">&#9662;</span>
+            </div>
+            <div class="sidebar-dropdown-menu">
+                <a href="#" class="sidebar-link" data-page="menu-items" onclick="showPage('menu-items', this)">
+                    <span class="sidebar-dot"></span> Menu Items
+                </a>
+            </div>
+        </div>
+
         <div class="sidebar-bottom">
             <a href="/" class="sidebar-link"><span class="sidebar-icon">&#127968;</span> View Site</a>
             <a href="/admin/logout" class="sidebar-link"><span class="sidebar-icon">&#128682;</span> Logout</a>
@@ -87,6 +102,26 @@
             </div>
         </div>
 
+        <!-- Menu Items Page -->
+        <div id="page-menu-items" class="admin-page">
+            <div class="admin-page-header">
+                <h2>Manage Menu Items</h2>
+                <p style="color:#888;font-size:0.85rem;margin-top:4px;">Add menu buttons that appear in the site header. Set a name and URL for each.</p>
+            </div>
+            <div class="admin-card">
+                <h3>Add New Menu Item</h3>
+                <div class="inline-form">
+                    <input type="text" id="new-menu-name" placeholder="Menu name (e.g. About Us)">
+                    <input type="text" id="new-menu-url" placeholder="URL (e.g. https://example.com)">
+                    <button class="btn btn-primary" onclick="addMenuItem()">Add Menu Item</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>All Menu Items</h3>
+                <div id="menu-items-list" class="data-table-wrap"></div>
+            </div>
+        </div>
+
         <!-- Cities Page -->
         <div id="page-cities" class="admin-page">
             <div class="admin-page-header">
@@ -120,6 +155,7 @@
         <div class="modal-content">
             <h3 id="modal-title">Edit</h3>
             <input type="text" id="modal-input" placeholder="New name">
+            <input type="text" id="modal-url-input" placeholder="URL" style="display:none;">
             <div class="modal-actions">
                 <button class="btn btn-primary" id="modal-save">Save</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
