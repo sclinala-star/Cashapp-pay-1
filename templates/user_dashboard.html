@@ -109,100 +109,142 @@
             <div id="dash-post-public" class="dash-page">
                 <h2>Create New Ad</h2>
                 <div class="post-form-wrapper">
-                    <form id="create-post-form">
-                        <div class="pf-row">
-                            <div class="pf-field">
-                                <label class="pf-label">I AM:</label>
-                                <select id="post-i-am" class="pf-input">
-                                    <option value="">-- Select --</option>
-                                    {% for cat in categories %}
-                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="pf-field">
-                                <label class="pf-label">I SEE:</label>
-                                <select id="post-i-see" class="pf-input">
-                                    <option value="">-- Select --</option>
-                                    {% for cat in categories %}
-                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="pf-row">
-                            <div class="pf-field">
-                                <label class="pf-label">Name/Alias:</label>
-                                <input type="text" id="post-name-alias" class="pf-input" placeholder="optional">
-                            </div>
-                            <div class="pf-field">
-                                <label class="pf-label">Age:</label>
-                                <select id="post-age" class="pf-input">
-                                    <option value="">-Age-</option>
-                                    {% for a in range(18, 81) %}
-                                    <option value="{{ a }}">{{ a }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="pf-field-full">
-                            <label class="pf-label">Headline: *</label>
-                            <input type="text" id="post-headline" class="pf-input" required>
-                        </div>
-
-                        <div class="pf-field-full">
-                            <label class="pf-label">Body: *</label>
-                            <textarea id="post-body" class="pf-input pf-textarea" rows="6" required></textarea>
-                        </div>
-
-                        <div class="pf-row">
-                            <div class="pf-field">
-                                <label class="pf-label">Country Select:</label>
-                                <select id="post-country" class="pf-input" onchange="loadPostStates()">
-                                    <option value="">--- Select Country ---</option>
-                                </select>
-                            </div>
-                            <div class="pf-field">
-                                <label class="pf-label">State Select:</label>
-                                <select id="post-state" class="pf-input" onchange="loadPostCities()">
-                                    <option value="">--- Select State ---</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="pf-row">
-                            <div class="pf-field">
-                                <label class="pf-label">City Select:</label>
-                                <select id="post-city-select" class="pf-input" onchange="document.getElementById('post-city').value=this.value">
-                                    <option value="">--- Select City ---</option>
-                                </select>
-                                <input type="hidden" id="post-city" value="">
-                            </div>
-                        </div>
-
-                        <div class="pf-row">
-                            <div class="pf-field">
-                                <label class="pf-label">Phone:</label>
-                                <div class="pf-phone-row">
-                                    <select id="post-phone-code" class="pf-input pf-phone-code">
-                                        <option value="+1">🇺🇸 United States (+1)</option>
-                                        <option value="+1">🇨🇦 Canada (+1)</option>
+                    <!-- Step 1: Ad Details -->
+                    <div id="post-step-1">
+                        <div class="pf-step-header">Step 1: Ad Details</div>
+                        <form id="create-post-form-step1" onsubmit="return goToStep2(event)">
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">I AM:</label>
+                                    <select id="post-i-am" class="pf-input">
+                                        <option value="">-- Select --</option>
+                                        {% for cat in categories %}
+                                        <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                        {% endfor %}
                                     </select>
-                                    <input type="tel" id="post-phone" class="pf-input pf-phone-num" placeholder="10 digit number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" style="min-width:180px;letter-spacing:1px;font-size:1rem;" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
+                                </div>
+                                <div class="pf-field">
+                                    <label class="pf-label">I SEE:</label>
+                                    <select id="post-i-see" class="pf-input">
+                                        <option value="">-- Select --</option>
+                                        {% for cat in categories %}
+                                        <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">Name/Alias:</label>
+                                    <input type="text" id="post-name-alias" class="pf-input" placeholder="optional">
+                                </div>
+                                <div class="pf-field">
+                                    <label class="pf-label">Age:</label>
+                                    <select id="post-age" class="pf-input">
+                                        <option value="">-Age-</option>
+                                        {% for a in range(18, 81) %}
+                                        <option value="{{ a }}">{{ a }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="pf-field-full">
+                                <label class="pf-label">Headline: *</label>
+                                <input type="text" id="post-headline" class="pf-input" required>
+                            </div>
+                            <div class="pf-field-full">
+                                <label class="pf-label">Body: *</label>
+                                <textarea id="post-body" class="pf-input pf-textarea" rows="6" required></textarea>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">Country Select:</label>
+                                    <select id="post-country" class="pf-input" onchange="loadPostStates()">
+                                        <option value="">--- Select Country ---</option>
+                                    </select>
+                                </div>
+                                <div class="pf-field">
+                                    <label class="pf-label">State Select:</label>
+                                    <select id="post-state" class="pf-input" onchange="loadPostCities()">
+                                        <option value="">--- Select State ---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">City Select:</label>
+                                    <select id="post-city-select" class="pf-input" onchange="document.getElementById('post-city').value=this.value">
+                                        <option value="">--- Select City ---</option>
+                                    </select>
+                                    <input type="hidden" id="post-city" value="">
+                                </div>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-field">
+                                    <label class="pf-label">Phone:</label>
+                                    <div class="pf-phone-row">
+                                        <select id="post-phone-code" class="pf-input pf-phone-code">
+                                            <option value="+1">🇺🇸 United States (+1)</option>
+                                            <option value="+1">🇨🇦 Canada (+1)</option>
+                                        </select>
+                                        <input type="tel" id="post-phone" class="pf-input pf-phone-num" placeholder="10 digit number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" style="min-width:180px;letter-spacing:1px;font-size:1rem;" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pf-field-full">
+                                <label class="pf-label">Location/Area:</label>
+                                <input type="text" id="post-location" class="pf-input" placeholder="optional">
+                            </div>
+                            <div class="pf-submit-row">
+                                <button type="submit" class="pf-next-btn">Next</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: Photos & Video -->
+                    <div id="post-step-2" style="display:none;">
+                        <div class="pf-step-header">Step 2: Add Photos & Video</div>
+
+                        <div class="media-section">
+                            <h3 class="media-section-title"><span class="media-badge">A</span> Photos in this Ad:</h3>
+                            <p class="media-hint">Tap to upload photos (max 12)</p>
+                            <div class="media-grid">
+                                <div class="media-slot" onclick="document.getElementById('photo-input-0').click()">
+                                    <input type="file" id="photo-input-0" accept="image/*" style="display:none" onchange="previewMedia(this, 'photo-preview-0')">
+                                    <div id="photo-preview-0" class="media-preview"><span class="media-slot-label">MAIN<br>PHOTO</span></div>
+                                </div>
+                                {% for i in range(2, 13) %}
+                                <div class="media-slot" onclick="document.getElementById('photo-input-{{ i-1 }}').click()">
+                                    <input type="file" id="photo-input-{{ i-1 }}" accept="image/*" style="display:none" onchange="previewMedia(this, 'photo-preview-{{ i-1 }}')">
+                                    <div id="photo-preview-{{ i-1 }}" class="media-preview"><span class="media-slot-num">{{ i }}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
 
-                        <div class="pf-field-full">
-                            <label class="pf-label">Location/Area:</label>
-                            <input type="text" id="post-location" class="pf-input" placeholder="optional">
+                        <div class="media-section">
+                            <h3 class="media-section-title"><span class="media-badge">C</span> Videos: <span style="font-weight:400">(optional)</span></h3>
+                            <p class="media-hint">Select up to 4 videos - max 35MB each</p>
+                            <div class="media-grid media-grid-4">
+                                <div class="media-slot" onclick="document.getElementById('video-input-0').click()">
+                                    <input type="file" id="video-input-0" accept="video/*" style="display:none" onchange="previewVideo(this, 'video-preview-0')">
+                                    <div id="video-preview-0" class="media-preview"><span class="media-slot-label">ADD<br>VIDEO</span></div>
+                                </div>
+                                {% for i in range(2, 5) %}
+                                <div class="media-slot" onclick="document.getElementById('video-input-{{ i-1 }}').click()">
+                                    <input type="file" id="video-input-{{ i-1 }}" accept="video/*" style="display:none" onchange="previewVideo(this, 'video-preview-{{ i-1 }}')">
+                                    <div id="video-preview-{{ i-1 }}" class="media-preview"><span class="media-slot-num">{{ i }}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
 
-                        <div class="pf-submit-row">
-                            <button type="submit" class="pf-next-btn">Next</button>
+                        <div class="pf-submit-row" style="justify-content:space-between;">
+                            <button type="button" class="pf-back-btn" onclick="backToStep1()">&#9664; Back</button>
+                            <button type="button" class="pf-publish-btn" onclick="publishPost()">Publish</button>
                         </div>
-                    </form>
+                    </div>
+
                     <div id="post-create-msg" style="margin-top:12px;"></div>
                 </div>
             </div>
@@ -392,37 +434,7 @@
             showDashPage('post-public');
         }
 
-        const createForm = document.getElementById('create-post-form');
-        if (createForm) {
-            createForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const msgDiv = document.getElementById('post-create-msg');
-                const body = {
-                    i_am: document.getElementById('post-i-am').value,
-                    i_see: document.getElementById('post-i-see').value,
-                    name_alias: document.getElementById('post-name-alias').value,
-                    age: document.getElementById('post-age').value,
-                    headline: document.getElementById('post-headline').value,
-                    body: document.getElementById('post-body').value,
-                    city: document.getElementById('post-city').value,
-                    phone_code: document.getElementById('post-phone-code').value,
-                    phone: document.getElementById('post-phone').value,
-                    location_area: document.getElementById('post-location').value
-                };
-                const res = await fetch('/api/posts', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(body)
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    msgDiv.innerHTML = '<div class="pf-success">Ad published successfully! Refreshing...</div>';
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    msgDiv.innerHTML = '<div class="pf-error">' + (data.error || 'Failed') + '</div>';
-                }
-            });
-        }
+        // Step navigation handled by global functions goToStep2, backToStep1, publishPost
 
         document.querySelectorAll('.edit-post-form').forEach(form => {
             form.addEventListener('submit', async function(e) {
@@ -555,6 +567,93 @@
             opt.textContent = c.name;
             citySel.appendChild(opt);
         });
+    }
+
+    function goToStep2(e) {
+        e.preventDefault();
+        const headline = document.getElementById('post-headline').value.trim();
+        const body = document.getElementById('post-body').value.trim();
+        if (!headline || !body) {
+            document.getElementById('post-create-msg').innerHTML = '<div class="pf-error">Headline and Body are required!</div>';
+            return false;
+        }
+        document.getElementById('post-step-1').style.display = 'none';
+        document.getElementById('post-step-2').style.display = 'block';
+        document.getElementById('post-create-msg').innerHTML = '';
+        return false;
+    }
+
+    function backToStep1() {
+        document.getElementById('post-step-2').style.display = 'none';
+        document.getElementById('post-step-1').style.display = 'block';
+    }
+
+    function previewMedia(input, previewId) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById(previewId).innerHTML = '<img src="' + e.target.result + '">';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function previewVideo(input, previewId) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 35 * 1024 * 1024) {
+            alert('Video must be under 35MB');
+            input.value = '';
+            return;
+        }
+        const url = URL.createObjectURL(file);
+        document.getElementById(previewId).innerHTML = '<video src="' + url + '" style="pointer-events:none;"></video>';
+    }
+
+    async function publishPost() {
+        const msgDiv = document.getElementById('post-create-msg');
+        msgDiv.innerHTML = '<div style="color:#daa520;">Publishing...</div>';
+
+        const formData = new FormData();
+        formData.append('i_am', document.getElementById('post-i-am').value);
+        formData.append('i_see', document.getElementById('post-i-see').value);
+        formData.append('name_alias', document.getElementById('post-name-alias').value);
+        formData.append('age', document.getElementById('post-age').value);
+        formData.append('headline', document.getElementById('post-headline').value);
+        formData.append('body', document.getElementById('post-body').value);
+        formData.append('city', document.getElementById('post-city').value);
+        formData.append('phone_code', document.getElementById('post-phone-code').value);
+        formData.append('phone', document.getElementById('post-phone').value);
+        formData.append('location_area', document.getElementById('post-location').value);
+
+        for (let i = 0; i < 12; i++) {
+            const inp = document.getElementById('photo-input-' + i);
+            if (inp && inp.files[0]) {
+                formData.append('photos', inp.files[0]);
+            }
+        }
+        for (let i = 0; i < 4; i++) {
+            const inp = document.getElementById('video-input-' + i);
+            if (inp && inp.files[0]) {
+                formData.append('videos', inp.files[0]);
+            }
+        }
+
+        try {
+            const res = await fetch('/api/posts', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                msgDiv.innerHTML = '<div class="pf-success">Ad published successfully! Refreshing...</div>';
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                msgDiv.innerHTML = '<div class="pf-error">' + (data.error || 'Failed') + '</div>';
+            }
+        } catch(err) {
+            msgDiv.innerHTML = '<div class="pf-error">Network error. Please try again.</div>';
+        }
     }
     </script>
 </body>

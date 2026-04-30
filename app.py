@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from itsdangerous import URLSafeSerializer
-from typing import Optional
+from typing import Optional, List
 from urllib.parse import urlparse
 import os
 import shutil
@@ -17,10 +17,14 @@ from database import get_db, init_db, seed_data
 app = FastAPI()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.environ.get("DATA_DIR", BASE_DIR)
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+MEDIA_DIR = os.path.join(DATA_DIR, "media")
 os.makedirs(UPLOADS_DIR, exist_ok=True)
+os.makedirs(MEDIA_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
+app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-in-production-classified-secret-key")
@@ -305,21 +309,61 @@ def api_get_user_posts(request: Request):
 
 
 @app.post("/api/posts", status_code=201)
-def api_create_post(request: Request, data: PostCreate):
+async def api_create_post(
+    request: Request,
+    i_am: str = Form(""),
+    i_see: str = Form(""),
+    name_alias: str = Form(""),
+    age: str = Form(""),
+    headline: str = Form(""),
+    body: str = Form(""),
+    city: str = Form(""),
+    phone_code: str = Form("+1"),
+    phone: str = Form(""),
+    location_area: str = Form(""),
+    photos: List[UploadFile] = File(None),
+    videos: List[UploadFile] = File(None),
+):
     user = get_current_user(request)
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    headline = data.headline.strip()
-    body = data.body.strip()
-    if not headline or not body:
+    headline = headline.strip()
+    body_text = body.strip()
+    if not headline or not body_text:
         return JSONResponse({"error": "Headline and body are required"}, status_code=400)
     db = get_db()
     cursor = db.execute(
         "INSERT INTO posts (user_id, i_am, i_see, name_alias, age, headline, body, city, phone_code, phone, location_area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (user["user_id"], data.i_am.strip(), data.i_see.strip(), data.name_alias.strip(), data.age.strip(), headline, body, data.city.strip(), data.phone_code.strip(), data.phone.strip(), data.location_area.strip())
+        (user["user_id"], i_am.strip(), i_see.strip(), name_alias.strip(), age.strip(), headline, body_text, city.strip(), phone_code.strip(), phone.strip(), location_area.strip())
     )
     db.commit()
     post_id = cursor.lastrowid
+
+    slot = 0
+    if photos:
+        for photo in photos:
+            if photo.filename:
+                ext = os.path.splitext(photo.filename)[1] or ".jpg"
+                fname = f"post_{post_id}_photo_{slot}_{uuid.uuid4().hex[:8]}{ext}"
+                fpath = os.path.join(MEDIA_DIR, fname)
+                content = await photo.read()
+                with open(fpath, "wb") as f:
+                    f.write(content)
+                db.execute("INSERT INTO post_media (post_id, media_type, filename, slot) VALUES (?, 'photo', ?, ?)", (post_id, fname, slot))
+                slot += 1
+    slot = 0
+    if videos:
+        for video in videos:
+            if video.filename:
+                ext = os.path.splitext(video.filename)[1] or ".mp4"
+                fname = f"post_{post_id}_video_{slot}_{uuid.uuid4().hex[:8]}{ext}"
+                fpath = os.path.join(MEDIA_DIR, fname)
+                content = await video.read()
+                with open(fpath, "wb") as f:
+                    f.write(content)
+                db.execute("INSERT INTO post_media (post_id, media_type, filename, slot) VALUES (?, 'video', ?, ?)", (post_id, fname, slot))
+                slot += 1
+    db.commit()
     db.close()
     return {"id": post_id, "headline": headline, "status": "active"}
 

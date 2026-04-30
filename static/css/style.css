@@ -1670,3 +1670,136 @@ a:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* ─── Step Header ──────────────────────────────────────────────── */
+.pf-step-header {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #daa520;
+    margin-bottom: 18px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ─── Media Upload Grid ────────────────────────────────────────── */
+.media-section {
+    margin-bottom: 24px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 18px;
+}
+.media-section-title {
+    color: #daa520;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+.media-badge {
+    display: inline-block;
+    background: #daa520;
+    color: #1a1a2e;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 6px;
+}
+.media-hint {
+    color: #aaa;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.media-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+.media-slot {
+    aspect-ratio: 1;
+    border: 2px dashed rgba(218,165,32,0.4);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: rgba(255,255,255,0.04);
+    transition: border-color 0.3s, background 0.3s;
+    overflow: hidden;
+    position: relative;
+}
+.media-slot:hover {
+    border-color: #daa520;
+    background: rgba(218,165,32,0.08);
+}
+.media-preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.media-preview img,
+.media-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.media-slot-label {
+    color: #888;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-align: center;
+    text-transform: uppercase;
+    line-height: 1.3;
+}
+.media-slot-num {
+    color: #666;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+/* ─── Back & Publish Buttons ───────────────────────────────────── */
+.pf-back-btn {
+    padding: 12px 28px;
+    border: 2px solid #daa520;
+    background: transparent;
+    color: #daa520;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.pf-back-btn:hover {
+    background: rgba(218,165,32,0.15);
+}
+.pf-publish-btn {
+    padding: 12px 36px;
+    background: linear-gradient(135deg, #daa520, #f4c542);
+    color: #1a1a2e;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(218,165,32,0.4);
+    transition: all 0.3s;
+    letter-spacing: 1px;
+}
+.pf-publish-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(218,165,32,0.6);
+}
+
+@media (max-width: 600px) {
+    .media-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
