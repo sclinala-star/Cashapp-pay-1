@@ -167,19 +167,25 @@
 
                         <div class="pf-row">
                             <div class="pf-field">
-                                <label class="pf-label">City:</label>
+                                <label class="pf-label">Country Select:</label>
                                 <select id="post-city-country" class="pf-input">
-                                    <option value="">--- Select City ---</option>
+                                    <option value="">--- Select Country ---</option>
                                     <option value="Canada">🇨🇦 Canada</option>
                                     <option value="United States">🇺🇸 United States</option>
                                     <option value="Europe">🇪🇺 Europe</option>
                                     <option value="Oceania">🌏 Oceania</option>
                                 </select>
-                                <select id="post-city-select" class="pf-input" style="display:none;margin-top:8px;">
-                                    <option value="">--- Select City ---</option>
+                            </div>
+                            <div class="pf-field">
+                                <label class="pf-label">State Select:</label>
+                                <select id="post-city-select" class="pf-input">
+                                    <option value="">--- Select State/City ---</option>
                                 </select>
                                 <input type="hidden" id="post-city" value="">
                             </div>
+                        </div>
+
+                        <div class="pf-row">
                             <div class="pf-field">
                                 <label class="pf-label">Phone:</label>
                                 <div class="pf-phone-row">
@@ -610,14 +616,15 @@
             "Oceania": ["Sydney","Melbourne","Brisbane","Perth","Auckland","Wellington","Adelaide","Gold Coast","Canberra","Christchurch","Hobart","Darwin","Cairns","Newcastle","Wollongong","Geelong","Townsville","Queenstown","Hamilton NZ","Dunedin","Tauranga","Fiji","Suva","Noumea","Papeete"]
         };
 
-        // Two-step city picker: country first, then cities
+        // Two-step picker: country first, then state/city
         const countrySelect = document.getElementById('post-city-country');
         const citySelect = document.getElementById('post-city-select');
         const cityHidden = document.getElementById('post-city');
         if (countrySelect && citySelect) {
             countrySelect.addEventListener('change', function() {
                 const region = this.value;
-                citySelect.innerHTML = '<option value="">--- Select City ---</option>';
+                citySelect.innerHTML = '<option value="">--- Select State/City ---</option>';
+                cityHidden.value = '';
                 if (region && locationData[region]) {
                     locationData[region].forEach(city => {
                         const opt = document.createElement('option');
@@ -625,10 +632,6 @@
                         opt.textContent = city;
                         citySelect.appendChild(opt);
                     });
-                    citySelect.style.display = 'block';
-                } else {
-                    citySelect.style.display = 'none';
-                    cityHidden.value = '';
                 }
             });
             citySelect.addEventListener('change', function() {
