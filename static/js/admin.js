@@ -665,10 +665,10 @@ async function loadBanners() {
         let html = '<table class="data-table"><thead><tr><th>Position</th><th>Title</th><th>Image</th><th>Link</th><th>Active</th><th>Actions</th></tr></thead><tbody>';
         banners.forEach(b => {
             html += `<tr>
-                <td><span style="padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;background:${b.position==='left'?'#e3f2fd':'#fce4ec'};color:${b.position==='left'?'#1565c0':'#c62828'}">${b.position.toUpperCase()}</span></td>
-                <td>${b.title || '-'}</td>
-                <td>${b.image_url ? `<img src="${b.image_url}" style="max-width:60px;max-height:40px;border-radius:4px;">` : '-'}</td>
-                <td>${b.link_url ? `<a href="${b.link_url}" target="_blank" style="color:#1565c0;font-size:0.8rem;">Open</a>` : '-'}</td>
+                <td><span style="padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;background:${b.position==='left'?'#e3f2fd':'#fce4ec'};color:${b.position==='left'?'#1565c0':'#c62828'}">${escapeHtml(b.position.toUpperCase())}</span></td>
+                <td>${b.title ? escapeHtml(b.title) : '-'}</td>
+                <td>${b.image_url ? `<img src="${escapeHtmlAttr(b.image_url)}" style="max-width:60px;max-height:40px;border-radius:4px;">` : '-'}</td>
+                <td>${b.link_url ? `<a href="${escapeHtmlAttr(b.link_url)}" target="_blank" style="color:#1565c0;font-size:0.8rem;">Open</a>` : '-'}</td>
                 <td>${b.is_active ? '✓ Active' : '✗ Off'}</td>
                 <td><button class="btn btn-danger btn-sm" onclick="deleteBanner(${b.id})">Delete</button></td>
             </tr>`;
