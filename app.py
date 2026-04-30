@@ -189,6 +189,26 @@ def view_ads_page(request: Request, country: str, state: str, city: str, categor
     })
 
 
+# ─── Ad Detail ────────────────────────────────────────────────────────
+
+@app.get("/ad/{post_id}", response_class=HTMLResponse)
+def ad_detail_page(request: Request, post_id: int):
+    db = get_db()
+    post = db.execute("SELECT * FROM posts WHERE id = ? AND status = 'active'", (post_id,)).fetchone()
+    if not post:
+        db.close()
+        return HTMLResponse("<h2>Ad not found</h2><a href='/'>Go Home</a>", status_code=404)
+    photos = db.execute("SELECT * FROM post_media WHERE post_id = ? AND media_type = 'photo' ORDER BY slot", (post_id,)).fetchall()
+    videos = db.execute("SELECT * FROM post_media WHERE post_id = ? AND media_type = 'video' ORDER BY slot", (post_id,)).fetchall()
+    db.close()
+    return templates.TemplateResponse(request=request, name="ad_detail.html", context={
+        "post": dict(post),
+        "photos": [dict(p) for p in photos],
+        "videos": [dict(v) for v in videos],
+        "logo_url": get_logo_url()
+    })
+
+
 # ─── User Auth ───────────────────────────────────────────────────────
 
 @app.get("/login", response_class=HTMLResponse)

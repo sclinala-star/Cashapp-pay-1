@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.headline }} - Classified Ads</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .ad-detail-container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .ad-detail-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.10); overflow: hidden; }
+        .ad-detail-header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; padding: 24px 30px; }
+        .ad-detail-badge { display: inline-block; background: linear-gradient(90deg, #daa520, #f5c842); color: #1a1a2e; padding: 4px 14px; border-radius: 14px; font-size: 0.85rem; font-weight: 700; }
+        .ad-detail-headline { font-size: 1.6rem; margin: 12px 0 4px; }
+        .ad-detail-meta { color: #aab; font-size: 0.9rem; display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+        .ad-detail-body-section { padding: 24px 30px; }
+        .ad-detail-body { font-size: 1.05rem; line-height: 1.7; color: #333; white-space: pre-wrap; }
+        .ad-detail-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; padding: 0 30px 20px; }
+        .ad-detail-info-item { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; }
+        .ad-detail-info-label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ad-detail-info-value { font-size: 1rem; font-weight: 600; color: #333; margin-top: 2px; }
+        .ad-photos-section { padding: 0 30px 20px; }
+        .ad-photos-section h3 { font-size: 1.1rem; margin-bottom: 12px; color: #333; }
+        .ad-photos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+        .ad-photo-thumb { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #eee; transition: border-color 0.2s; }
+        .ad-photo-thumb:hover { border-color: #daa520; }
+        .ad-videos-section { padding: 0 30px 20px; }
+        .ad-videos-section h3 { font-size: 1.1rem; margin-bottom: 12px; color: #333; }
+        .ad-video-player { width: 100%; max-width: 480px; border-radius: 8px; margin-bottom: 10px; }
+        .ad-detail-footer { padding: 16px 30px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .ad-back-btn { display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #daa520, #f5c842); color: #1a1a2e; border-radius: 8px; text-decoration: none; font-weight: 700; transition: transform 0.2s; }
+        .ad-back-btn:hover { transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                {% if logo_url %}
+                <a href="/" class="site-logo-link"><img src="{{ logo_url }}" alt="Logo" class="site-logo"></a>
+                {% else %}
+                <h1 class="site-title">Classified</h1>
+                {% endif %}
+            </div>
+            <nav class="header-nav">
+                <a href="/" class="golden-btn">Home</a>
+                <a href="/login" class="golden-btn">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="city-breadcrumb-bar">
+        <div class="city-breadcrumb">
+            <a href="/" class="bc-link">HOME</a>
+            <span class="bc-sep">›</span>
+            <span class="bc-current">Ad #{{ post.id }}</span>
+        </div>
+    </div>
+
+    <main class="ad-detail-container">
+        <div class="ad-detail-card">
+            <div class="ad-detail-header">
+                <span class="ad-detail-badge">{{ post.i_am }} → {{ post.i_see }}</span>
+                <h1 class="ad-detail-headline">{{ post.headline }}</h1>
+                <div class="ad-detail-meta">
+                    {% if post.name_alias %}<span>{{ post.name_alias }}</span>{% endif %}
+                    {% if post.age %}<span>Age: {{ post.age }}</span>{% endif %}
+                    <span>📍 {{ post.city }}</span>
+                    <span>{{ post.created_at }}</span>
+                </div>
+            </div>
+
+            <div class="ad-detail-body-section">
+                <div class="ad-detail-body">{{ post.body }}</div>
+            </div>
+
+            <div class="ad-detail-info">
+                {% if post.location_area %}
+                <div class="ad-detail-info-item">
+                    <div class="ad-detail-info-label">Location / Area</div>
+                    <div class="ad-detail-info-value">{{ post.location_area }}</div>
+                </div>
+                {% endif %}
+                {% if post.phone %}
+                <div class="ad-detail-info-item">
+                    <div class="ad-detail-info-label">Phone</div>
+                    <div class="ad-detail-info-value">{{ post.phone_code }} {{ post.phone }}</div>
+                </div>
+                {% endif %}
+                <div class="ad-detail-info-item">
+                    <div class="ad-detail-info-label">City</div>
+                    <div class="ad-detail-info-value">{{ post.city }}</div>
+                </div>
+                <div class="ad-detail-info-item">
+                    <div class="ad-detail-info-label">Posted</div>
+                    <div class="ad-detail-info-value">{{ post.created_at }}</div>
+                </div>
+            </div>
+
+            {% if photos %}
+            <div class="ad-photos-section">
+                <h3>Photos ({{ photos|length }})</h3>
+                <div class="ad-photos-grid">
+                    {% for photo in photos %}
+                    <img src="/media/{{ photo.filename }}" alt="Photo {{ loop.index }}" class="ad-photo-thumb" onclick="window.open('/media/{{ photo.filename }}', '_blank')">
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if videos %}
+            <div class="ad-videos-section">
+                <h3>Videos ({{ videos|length }})</h3>
+                {% for video in videos %}
+                <video controls class="ad-video-player">
+                    <source src="/media/{{ video.filename }}" type="video/mp4">
+                </video>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="ad-detail-footer">
+                <a href="javascript:history.back()" class="ad-back-btn">← Back</a>
+                <span style="color:#888;font-size:0.85rem;">Ad ID: {{ post.id }}</span>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Classified Ads. All rights reserved.</p>
+    </footer>
+</body>
+</html>

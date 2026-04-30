@@ -1575,16 +1575,24 @@ a:hover {
     gap: 20px;
 }
 
+.city-post-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
 .city-post-card {
     background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
 }
 
 .city-post-card:hover {
+    transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
 
