@@ -41,16 +41,6 @@
         <h2 class="city-page-title">{{ current_cat }}</h2>
         <p class="city-page-subtitle">{{ city_name }}, {{ state_name }}, {{ country_name }}</p>
 
-        {% if categories %}
-        <div class="city-categories">
-            {% for cat in categories %}
-            <a href="/{{ country_name | urlencode }}/{{ state_name | urlencode }}/{{ city_name | urlencode }}/{{ cat.name | urlencode }}/viewads" class="cat-btn cat-btn-{{ loop.index }} {% if cat.name == current_cat %}cat-btn-active{% endif %}" style="--cat-color: {{ cat.color }};">
-                {{ cat.name }}
-            </a>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         {% if posts %}
         <div class="city-posts-grid">
             {% for post in posts %}
