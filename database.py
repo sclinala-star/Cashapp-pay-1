@@ -138,6 +138,18 @@ def seed_data():
     conn = get_db()
     cursor = conn.cursor()
 
+    # Always rename old-style category names on startup
+    old_to_new = {
+        "Categories 1": "W seek M",
+        "Categories 2": "M seek W",
+        "Categories 3": "M seek M",
+        "Categories 4": "W seek W",
+        "Categories 5": "Trans",
+    }
+    for old_name, new_name in old_to_new.items():
+        cursor.execute("UPDATE categories SET name = ? WHERE name = ?", (new_name, old_name))
+    conn.commit()
+
     count = cursor.execute("SELECT COUNT(*) FROM countries").fetchone()[0]
     if count > 0:
         conn.close()
@@ -247,16 +259,6 @@ def seed_data():
         ("W seek W", "#6a1b9a", 4),
         ("Trans", "#e65100", 5),
     ]
-    # Rename old-style category names if they exist
-    old_to_new = {
-        "Categories 1": "W seek M",
-        "Categories 2": "M seek W",
-        "Categories 3": "M seek M",
-        "Categories 4": "W seek W",
-        "Categories 5": "Trans",
-    }
-    for old_name, new_name in old_to_new.items():
-        cursor.execute("UPDATE categories SET name = ? WHERE name = ?", (new_name, old_name))
     cat_count = cursor.execute("SELECT COUNT(*) FROM categories").fetchone()[0]
     if cat_count > 0:
         conn.commit()
