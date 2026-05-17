@@ -237,16 +237,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         contacts.phones.forEach(x => csv += `Phone,"${x}"\n`);
         contacts.emails.forEach(x => csv += `Email,"${x}"\n`);
 
-        const blob = new Blob([csv], { type: "text/csv" });
-        const reader = new FileReader();
-        reader.onload = () => {
-          chrome.downloads.download({
-            url: reader.result,
-            filename: "contacts.csv"
-          });
-          sendResponse({ success: true });
-        };
-        reader.readAsDataURL(blob);
+        // Use data URI instead of Blob (Blob/FileReader not available in service workers)
+        const base64csv = btoa(unescape(encodeURIComponent(csv)));
+        const dataUrl = "data:text/csv;base64," + base64csv;
+
+        chrome.downloads.download({
+          url: dataUrl,
+          filename: "contacts.csv"
+        });
+        sendResponse({ success: true });
       } catch (e) {
         sendResponse({ success: false, error: e.message });
       }
