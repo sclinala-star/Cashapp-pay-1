@@ -12,7 +12,7 @@
     "<all_urls>"
   ],
   "oauth2": {
-    "client_id": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "client_id": "228845836773-ca2emfpao9vevmler6ju1de3k8k7j8d6.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/spreadsheets"
     ]
