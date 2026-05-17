@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Contact Collector Pro",
+  "version": "3.0",
+  "description": "Advanced contact collector with deep crawling, encryption, and Google Sheets export.",
+  "permissions": [
+    "storage",
+    "downloads",
+    "identity"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "oauth2": {
+    "client_id": "228845836773-ca2emfpao9vevmler6ju1de3k8k7j8d6.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/spreadsheets"
+    ]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
