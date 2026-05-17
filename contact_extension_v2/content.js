@@ -6,19 +6,43 @@
   if (!enabled) return;
 
   // ─── Regex patterns ────────────────────────────────────────────
-  const EMAIL_RE = /[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g;
-  const PHONE_RE = /(\+?\d[\d\s()\-]{7,}\d)/g;
+  const EMAIL_RE = /[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/gi;
+  // USA phone: optional +1 or 1 prefix, then 3-3-4 digit pattern
+  const USA_PHONE_RE = /(?:\+?1[-.\/\s]?)?(?:\(?\d{3}\)?[-.\/\s]?)\d{3}[-.\/\s]?\d{4}/g;
+
+  // Clean phone number to digits only, normalize to USA format
+  function cleanUSAPhone(raw) {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length === 10) return "+1" + digits;
+    if (digits.length === 11 && digits.startsWith("1")) return "+" + digits;
+    return null; // not a valid USA number
+  }
 
   // ─── Extract contacts from text ────────────────────────────────
   function extractContacts(text) {
-    const emails = [...new Set((text.match(EMAIL_RE) || []))];
-    const phones = [...new Set((text.match(PHONE_RE) || []).map(p => p.trim()))];
+    // Deobfuscate common email hiding patterns
+    let cleanText = text
+      .replace(/\s*\[at\]\s*/gi, "@")
+      .replace(/\s*\(at\)\s*/gi, "@")
+      .replace(/\s*\[dot\]\s*/gi, ".")
+      .replace(/\s*\(dot\)\s*/gi, ".");
 
-    // Also extract WhatsApp numbers from wa.me links
-    const waRe = /wa\.me\/(\+?\d[\d]{7,})/g;
+    const emails = [...new Set((cleanText.match(EMAIL_RE) || []))];
+
+    // Extract USA phone numbers
+    const rawPhones = cleanText.match(USA_PHONE_RE) || [];
+    const phones = [];
+    rawPhones.forEach(p => {
+      const cleaned = cleanUSAPhone(p);
+      if (cleaned) phones.push(cleaned);
+    });
+
+    // Also extract WhatsApp USA numbers from wa.me links
+    const waRe = /wa\.me\/(\+?1?\d{10,11})/g;
     let match;
-    while ((match = waRe.exec(text)) !== null) {
-      phones.push(match[1]);
+    while ((match = waRe.exec(cleanText)) !== null) {
+      const cleaned = cleanUSAPhone(match[1]);
+      if (cleaned) phones.push(cleaned);
     }
 
     return {
@@ -44,6 +68,16 @@
         extraText += " " + href;
       }
     });
+
+    // Also extract from meta tags and input fields
+    const metaTags = document.querySelectorAll('meta[content]');
+    metaTags.forEach(meta => {
+      const content = meta.getAttribute('content') || '';
+      if (content.includes('@') || /\d{3}/.test(content)) {
+        extraText += ' ' + content;
+      }
+    });
+
     return extractContacts(text + extraText);
   }
 
