@@ -8,7 +8,8 @@
   // ─── Regex patterns ────────────────────────────────────────────
   const EMAIL_RE = /[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/gi;
   // USA phone: optional +1 or 1 prefix, then 3-3-4 digit pattern
-  const USA_PHONE_RE = /(?:\+?1[-.\/\s]?)?(?:\(?\d{3}\)?[-.\/\s]?)\d{3}[-.\/\s]?\d{4}/g;
+  // (?<!\d) and (?!\d) prevent matching inside longer digit sequences
+  const USA_PHONE_RE = /(?<!\d)(?:\+?1[-.\/\s]?)?(?:\(?\d{3}\)?[-.\/\s]?)\d{3}[-.\/\s]?\d{4}(?!\d)/g;
 
   // Clean phone number to digits only, normalize to USA format
   function cleanUSAPhone(raw) {
