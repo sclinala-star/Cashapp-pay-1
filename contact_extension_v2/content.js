@@ -14,9 +14,18 @@
   // Clean phone number to digits only, normalize to USA format
   function cleanUSAPhone(raw) {
     const digits = raw.replace(/\D/g, "");
-    if (digits.length === 10) return "+1" + digits;
-    if (digits.length === 11 && digits.startsWith("1")) return "+" + digits;
-    return null; // not a valid USA number
+    let areaCode;
+    if (digits.length === 10) {
+      areaCode = digits.substring(0, 3);
+    } else if (digits.length === 11 && digits.startsWith("1")) {
+      areaCode = digits.substring(1, 4);
+    } else {
+      return null;
+    }
+    // US area codes never start with 0 or 1
+    if (areaCode[0] === "0" || areaCode[0] === "1") return null;
+    const normalized = digits.length === 10 ? "+1" + digits : "+" + digits;
+    return normalized;
   }
 
   // ─── Extract contacts from text ────────────────────────────────
